@@ -246,7 +246,7 @@ export default function WeddingInvitation() {
             src="/assets/hero-procession-bg.mp4"
           />
 
-          <div className="relative z-10 w-full flex flex-col items-center justify-center space-y-2.5 pt-60">
+          <div className="relative z-10 w-full flex flex-col items-center justify-center space-y-2.5 pt-26">
             <p className={`${marcellus.className} tracking-[0.14em] text-[0.72rem] uppercase text-[#76181C] font-medium`}>
               || Shree Ganeshay Namah ||
             </p>
