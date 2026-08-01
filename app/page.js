@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { MapPin, CheckCircle, Volume2, VolumeX } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { Marcellus, Great_Vibes, Cormorant_Garamond } from 'next/font/google';
@@ -11,93 +11,22 @@ const marcellus = Marcellus({ weight: '400', subsets: ['latin'] });
 const greatVibes = Great_Vibes({ weight: '400', subsets: ['latin'] });
 const cormorant = Cormorant_Garamond({ weight: ['400', '500', '600', '700'], subsets: ['latin'] });
 
-// Scaled & Spaced Footprint Coordinates matching the main site SVG curve
-const FOOTPRINT_COORDINATES = [
-  { isLeft: true,  left: "50.5%",   top: "3.9%",   rot: -179.8 },
-  { isLeft: false, left: "49.5%",   top: "3.9%",   rot: -179.8 },
-  { isLeft: true,  left: "48.2%",   top: "6.6%",   rot: -163.5 },
-  { isLeft: false, left: "44.5%",   top: "7.8%",   rot: -151.6 },
-  { isLeft: true,  left: "41.9%",   top: "9.6%",   rot: -142.3 },
-  { isLeft: false, left: "37.1%",   top: "10.3%",  rot: -138.4 },
-  { isLeft: true,  left: "33.7%",   top: "12.2%",  rot: -140.9 },
-  { isLeft: false, left: "29.1%",   top: "13.0%",  rot: -149.2 },
-  { isLeft: true,  left: "27.5%",   top: "14.9%",  rot: -160.9 },
-  { isLeft: false, left: "26.3%",   top: "16.3%",  rot: -172.3 },
-  { isLeft: true,  left: "27.0%",   top: "17.9%",  rot: 178.5 },
-  { isLeft: false, left: "28.6%",   top: "19.7%",  rot: 168.4 },
-  { isLeft: true,  left: "32.0%",   top: "21.0%",  rot: 157.1 },
-  { isLeft: false, left: "35.0%",   top: "22.9%",  rot: 146.2 },
-  { isLeft: true,  left: "39.7%",   top: "23.6%",  rot: 137.6 },
-  { isLeft: false, left: "43.5%",   top: "25.4%",  rot: 131.6 },
-  { isLeft: true,  left: "48.7%",   top: "25.8%",  rot: 128.3 },
-  { isLeft: false, left: "53.2%",   top: "27.5%",  rot: 127.3 },
-  { isLeft: true,  left: "58.4%",   top: "27.8%",  rot: 128.5 },
-  { isLeft: false, left: "62.7%",   top: "29.6%",  rot: 132.2 },
-  { isLeft: true,  left: "67.7%",   top: "30.1%",  rot: 138.5 },
-  { isLeft: false, left: "71.6%",   top: "31.9%",  rot: 147.5 },
-  { isLeft: true,  left: "73.8%",   top: "33.0%",  rot: 158.5 },
-  { isLeft: false, left: "73.5%",   top: "34.8%",  rot: 169.7 },
-  { isLeft: true,  left: "72.9%",   top: "36.4%",  rot: 179.6 },
-  { isLeft: false, left: "70.6%",   top: "38.0%",  rot: -170.5 },
-  { isLeft: true,  left: "68.1%",   top: "39.8%",  rot: -159.3 },
-  { isLeft: false, left: "64.0%",   top: "40.9%",  rot: -148.3 },
-  { isLeft: true,  left: "60.1%",   top: "42.7%",  rot: -139.1 },
-  { isLeft: false, left: "55.2%",   top: "43.3%",  rot: -132.6 },
-  { isLeft: true,  left: "50.9%",   top: "45.0%",  rot: -128.7 },
-  { isLeft: false, left: "46.7%",   top: "45.3%",  rot: -127.3 },
-  { isLeft: true,  left: "42.2%",   top: "47.1%",  rot: -128.1 },
-  { isLeft: false, left: "37.1%",   top: "47.4%",  rot: -131.3 },
-  { isLeft: true,  left: "33.2%",   top: "49.2%",  rot: -137.0 },
-  { isLeft: false, left: "29.4%",   top: "49.9%",  rot: -145.5 },
-  { isLeft: true,  left: "28.3%",   top: "51.8%",  rot: -156.2 },
-  { isLeft: false, left: "27.7%",   top: "53.1%",  rot: -167.5 },
-  { isLeft: true,  left: "29.0%",   top: "54.8%",  rot: -177.8 },
-  { isLeft: false, left: "30.2%",   top: "56.5%",  rot: 172.6 },
-  { isLeft: true,  left: "34.3%",   top: "57.9%",  rot: 161.6 },
-  { isLeft: false, left: "37.8%",   top: "59.8%",  rot: 150.4 },
-  { isLeft: true,  left: "42.4%",   top: "60.7%",  rot: 140.7 },
-  { isLeft: false, left: "46.9%",   top: "62.5%",  rot: 133.6 },
-  { isLeft: true,  left: "52.0%",   top: "62.9%",  rot: 129.3 },
-  { isLeft: false, left: "56.5%",   top: "64.6%",  rot: 127.4 },
-  { isLeft: true,  left: "61.7%",   top: "64.9%",  rot: 127.8 },
-  { isLeft: false, left: "65.1%",   top: "66.6%",  rot: 130.4 },
-  { isLeft: true,  left: "69.1%",   top: "67.1%",  rot: 135.6 },
-  { isLeft: false, left: "71.4%",   top: "68.9%",  rot: 143.6 },
-  { isLeft: true,  left: "72.9%",   top: "69.9%",  rot: 153.9 },
-  { isLeft: false, left: "72.0%",   top: "71.7%",  rot: 165.3 },
-  { isLeft: true,  left: "71.9%",   top: "73.2%",  rot: 175.9 },
-  { isLeft: false, left: "68.8%",   top: "74.8%",  rot: -174.6 },
-  { isLeft: true,  left: "65.8%",   top: "76.6%",  rot: -163.9 },
-  { isLeft: false, left: "62.0%",   top: "77.8%",  rot: -152.5 },
-  { isLeft: true,  left: "57.6%",   top: "79.7%",  rot: -142.4 },
-  { isLeft: false, left: "52.7%",   top: "80.3%",  rot: -134.8 },
-  { isLeft: true,  left: "47.6%",   top: "82.1%",  rot: -130.0 },
-  { isLeft: false, left: "43.5%",   top: "82.5%",  rot: -127.6 },
-  { isLeft: true,  left: "38.9%",   top: "84.2%",  rot: -127.5 },
-  { isLeft: false, left: "34.7%",   top: "84.5%",  rot: -129.7 },
-  { isLeft: true,  left: "31.7%",   top: "86.3%",  rot: -134.4 },
-  { isLeft: false, left: "28.7%",   top: "86.9%",  rot: -141.8 },
-  { isLeft: true,  left: "28.2%",   top: "88.7%",  rot: -151.8 },
-  { isLeft: false, left: "27.3%",   top: "89.9%",  rot: -163.1 },
-  { isLeft: true,  left: "29.1%",   top: "91.7%",  rot: -173.9 },
-];
-
 const INVITATION_DATA = {
   couple: {
     groom: {
-      name: "Bonde Sai Venkateswara Rao",
-      shortName: "Venky",
-      parents: "Mr. Venky Dad & Mrs. Kasthuri",
+      name: "Sai Venkateswara Rao Bonde",
+      shortName: "Venkat",
+      parents: "Mr. Srinivas Rao & Mrs. Kasthuri",
       image: "/assets/groom.jpg"
     },
     bride: {
-      name: "Vineela",
+      name: "Vineela Bandi",
       shortName: "Vineela",
-      parents: "Mr. Vineela Dad & Mrs. Vineela Mom",
+      parents: "Mr. Veerasekhara Rao & Mrs. Ajaya Kumari",
       image: "/assets/bride.jpg"
     }
   },
-  weddingDate: "2026-09-05T10:32:00",
+  weddingDate: "2026-09-05T10:31:00",
   events: [
     {
       id: "pelli-koduku",
@@ -108,7 +37,7 @@ const INVITATION_DATA = {
       mapUrl: "https://maps.app.goo.gl/CXu1vRyaRTGwVE3v7",
       iconImg: "/assets/pooja-plate.png",
       align: "right",
-      topPct: "17.7%"
+      topPct: "20%"
     },
     {
       id: "pelli-kuturu",
@@ -119,7 +48,7 @@ const INVITATION_DATA = {
       mapUrl: "https://maps.app.goo.gl/o9wXhgkERR4hZ4MXA",
       iconImg: "/assets/pooja-plate.png",
       align: "left",
-      topPct: "36.5%"
+      topPct: "38%"
     },
     {
       id: "haldi",
@@ -131,18 +60,18 @@ const INVITATION_DATA = {
       mapUrl: "https://maps.app.goo.gl/X5fr5s3EEj6dScjD8",
       iconImg: "/assets/haldi-bowl.png",
       align: "right",
-      topPct: "55.2%"
+      topPct: "56%"
     },
     {
       id: "wedding",
       title: "Wedding Ceremony",
       date: "Saturday, 05th September 2026",
-      time: "10:32 AM",
+      time: "10:31 AM",
       venue: "Hindu Temple of St Louis",
       mapUrl: "https://maps.app.goo.gl/BcE4pcMrCyi1j7i8A",
       iconImg: "/assets/nadaswaram.png",
       align: "left",
-      topPct: "74.0%"
+      topPct: "74%"
     },
     {
       id: "reception",
@@ -153,10 +82,9 @@ const INVITATION_DATA = {
       mapUrl: "https://maps.app.goo.gl/zmQntu9X6cNrTdmg7",
       iconImg: "/assets/reception-sofa.png",
       align: "right",
-      topPct: "92.7%"
+      topPct: "91%"
     }
   ],
-  // Local gallery filenames (add your photos to public/assets/gallery/)
   galleryImages: [
     "photo-1.jpg",
     "photo-2.jpg",
@@ -177,6 +105,16 @@ export default function WeddingInvitation() {
   const audioRef = useRef(null);
 
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [attendingStatus, setAttendingStatus] = useState('');
+
+  // Scroll ref for timeline path drawing effect
+  const timelineRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: timelineRef,
+    offset: ["start end", "end start"]
+  });
+
+  const pathLength = useTransform(scrollYProgress, [0.1, 0.85], [0, 1]);
 
   useEffect(() => {
     const target = new Date(INVITATION_DATA.weddingDate).getTime();
@@ -253,18 +191,22 @@ export default function WeddingInvitation() {
             className="fixed inset-0 z-50 flex flex-col items-center justify-start p-6 text-center bg-cover bg-center bg-no-repeat bg-[#FDFBF2]"
             style={{ backgroundImage: "url('/entry-card.jpg')" }}
           >
-            <div className="w-full max-w-sm flex flex-col items-center justify-center space-y-2.5 pt-28 sm:pt-36">
+            <div className="w-full max-w-sm flex flex-col items-center justify-center space-y-2 pt-45 sm:pt-28">
+              
+              <div className="w-16 h-16 sm:w-20 sm:h-20 mb-1 flex items-center justify-center bg-transparent">
+              </div>
+
               <p className={`${marcellus.className} tracking-[0.14em] uppercase text-[0.72rem] text-[#76181C] font-medium`}>
                 THE WEDDING OF
               </p>
 
               <div className="space-y-0 text-[#76181C] py-0.5">
                 <h1 className={`${greatVibes.className} text-5xl sm:text-6xl text-[#76181C] leading-tight`}>
-                  {INVITATION_DATA.couple.groom.shortName}
+                  {INVITATION_DATA.couple.bride.shortName}
                 </h1>
                 <p className={`${greatVibes.className} text-2xl text-[#76181C] my-0`}>&amp;</p>
                 <h1 className={`${greatVibes.className} text-5xl sm:text-6xl text-[#76181C] leading-tight`}>
-                  {INVITATION_DATA.couple.bride.shortName}
+                  {INVITATION_DATA.couple.groom.shortName}
                 </h1>
               </div>
 
@@ -329,21 +271,17 @@ export default function WeddingInvitation() {
           </div>
         </section>
 
-        {/* 2. THE COUPLE SECTION */}
-        <section 
-          className="relative py-14 px-8 text-center shadow-inner overflow-hidden"
-          style={{ 
-            backgroundColor: '#fbebb3',
-            backgroundImage: "url('/assets/temple-scenery.png')",
-            backgroundSize: 'cover',
-            backgroundPosition: 'center'
-          }}
-        >
-          {/* Borders */}
-          <div className="absolute top-0 left-0 right-0 h-5 bg-repeat-x bg-contain z-20 shadow-sm" style={{ backgroundImage: "url('/assets/elephant-border-top.jpg')" }} />
-          <div className="absolute bottom-0 left-0 right-0 h-5 bg-repeat-x bg-contain z-20 shadow-sm" style={{ backgroundImage: "url('/assets/elephant-border-bottom.jpg')" }} />
-          <div className="absolute left-0 top-0 bottom-0 w-5 bg-repeat-y bg-contain z-20 shadow-sm" style={{ backgroundImage: "url('/assets/elephant-border-left.jpg')" }} />
-          <div className="absolute right-0 top-0 bottom-0 w-5 bg-repeat-y bg-contain z-20 shadow-sm" style={{ backgroundImage: "url('/assets/elephant-border-right.jpg')" }} />
+        {/* 2. THE COUPLE SECTION (PERFECTLY CENTERED CIRCULAR FRAMES) */}
+        <section className="relative py-14 px-8 text-center shadow-inner overflow-hidden">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            className="absolute inset-0 w-full h-full object-cover z-0"
+            src="/assets/temple-scenery.mp4"
+          />
 
           <div className="relative z-10 space-y-1 pt-2">
             <h2 className={`${marcellus.className} text-3xl text-[#76181C] tracking-[0.01em]`}>The Couple</h2>
@@ -353,44 +291,54 @@ export default function WeddingInvitation() {
           </div>
 
           {/* GROOM CARD */}
-          <div className="relative z-10 pt-2 pb-4 px-4">
-            <div className="relative w-64 h-[350px] mx-auto flex items-center justify-center">
-              <div 
-                className="absolute top-[32.5%] w-[76%] h-[63.5%] overflow-hidden rounded-t-[50px] rounded-b-xl"
-                style={{ WebkitMaskImage: "radial-gradient(circle at 50% 0%, black 100%, transparent 100%)" }}
-              >
+          <div className="relative z-10 pt-6 pb-4 px-4">
+            <div className="relative w-64 h-64 mx-auto flex items-center justify-center">
+              
+              {/* Perfectly Centered Circular Photo Container */}
+              <div className="absolute w-[210px] h-[210px] rounded-full overflow-hidden shadow-xl bg-white z-0 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 mt-[-13px] ml-[7px]">
                 <img src={INVITATION_DATA.couple.groom.image} alt={INVITATION_DATA.couple.groom.name} className="w-full h-full object-cover object-top" />
               </div>
-              <img src="/assets/peacock-arch.png" alt="Peacock Arch Frame" className="absolute inset-0 w-full h-full object-contain pointer-events-none z-10" />
+
+              {/* Pink Floral Wreath Overlay */}
+              <img 
+                src="/assets/pink-floral-wreath.png" 
+                alt="Pink Floral Wreath" 
+                className="absolute inset-0 w-full h-full object-contain pointer-events-none z-10 scale-125 mix-blend-multiply opacity-95" 
+              />
             </div>
 
-            <div className="mt-1 space-y-1">
+            <div className="mt-3 space-y-1">
               <h3 className={`${greatVibes.className} text-3xl text-[#76181C]`}>{INVITATION_DATA.couple.groom.name}</h3>
               <p className={`${marcellus.className} tracking-[0.14em] text-[0.72rem] uppercase text-[#76181C] font-medium pt-1`}>SON OF</p>
-              <p className={`${cormorant.className} text-sm text-gray-700 font-medium`}>{INVITATION_DATA.couple.groom.parents}</p>
+              <p className={`${cormorant.className} text-sm text-gray-800 font-medium`}>{INVITATION_DATA.couple.groom.parents}</p>
             </div>
           </div>
 
-          <div className="relative z-10 w-full my-2 flex justify-center">
+          <div className="relative z-10 w-full my-3 flex justify-center">
             <img src="/assets/gold-divider.png" alt="Divider" className="w-64 max-w-full h-auto opacity-90" />
           </div>
 
           {/* BRIDE CARD */}
           <div className="relative z-10 pt-2 pb-4 px-4">
-            <div className="relative w-64 h-[350px] mx-auto flex items-center justify-center">
-              <div 
-                className="absolute top-[32.5%] w-[76%] h-[63.5%] overflow-hidden rounded-t-[50px] rounded-b-xl"
-                style={{ WebkitMaskImage: "radial-gradient(circle at 50% 0%, black 100%, transparent 100%)" }}
-              >
+            <div className="relative w-64 h-64 mx-auto flex items-center justify-center">
+              
+              {/* Perfectly Centered Circular Photo Container */}
+              <div className="absolute w-[210px] h-[210px] rounded-full overflow-hidden shadow-xl bg-white z-0 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 mt-[-13px] ml-[7px]">
                 <img src={INVITATION_DATA.couple.bride.image} alt={INVITATION_DATA.couple.bride.name} className="w-full h-full object-cover object-top" />
               </div>
-              <img src="/assets/peacock-arch.png" alt="Peacock Arch Frame" className="absolute inset-0 w-full h-full object-contain pointer-events-none z-10" />
+
+              {/* Pink Floral Wreath Overlay */}
+              <img 
+                src="/assets/pink-floral-wreath.png" 
+                alt="Pink Floral Wreath" 
+                className="absolute inset-0 w-full h-full object-contain pointer-events-none z-10 scale-125 mix-blend-multiply opacity-95" 
+              />
             </div>
 
-            <div className="mt-1 space-y-1">
+            <div className="mt-3 space-y-1">
               <h3 className={`${greatVibes.className} text-3xl text-[#76181C]`}>{INVITATION_DATA.couple.bride.name}</h3>
               <p className={`${marcellus.className} tracking-[0.14em] text-[0.72rem] uppercase text-[#76181C] font-medium pt-1`}>DAUGHTER OF</p>
-              <p className={`${cormorant.className} text-sm text-gray-700 font-medium`}>{INVITATION_DATA.couple.bride.parents}</p>
+              <p className={`${cormorant.className} text-sm text-gray-800 font-medium`}>{INVITATION_DATA.couple.bride.parents}</p>
             </div>
           </div>
         </section>
@@ -424,80 +372,81 @@ export default function WeddingInvitation() {
           </div>
         </section>
 
-        {/* 4. THE WEDDING JOURNEY TIMELINE */}
+        {/* 4. CREATIVE SCROLLING JOURNEY TIMELINE WITH INTEGRATED TOP MARIGOLD BORDER */}
         <section 
-          className="relative py-14 px-3 shadow-inner overflow-hidden"
+          ref={timelineRef}
+          className="relative pt-12 pb-20 px-3 shadow-inner overflow-hidden"
           style={{ 
             backgroundColor: '#fbebb3',
             backgroundImage: "url('/assets/muggu-pattern.png')",
-            backgroundRepeat: 'repeat',
-            backgroundSize: '180px 180px'
           }}
         >
-          {/* Elephant Borders */}
-          <div className="absolute top-0 left-0 right-0 h-5 bg-repeat-x bg-contain z-20 shadow-sm" style={{ backgroundImage: "url('/assets/elephant-border-top.jpg')" }} />
-          <div className="absolute bottom-0 left-0 right-0 h-5 bg-repeat-x bg-contain z-20 shadow-sm" style={{ backgroundImage: "url('/assets/elephant-border-bottom.jpg')" }} />
-          <div className="absolute left-0 top-0 bottom-0 w-5 bg-repeat-y bg-contain z-20 shadow-sm" style={{ backgroundImage: "url('/assets/elephant-border-left.jpg')" }} />
-          <div className="absolute right-0 top-0 bottom-0 w-5 bg-repeat-y bg-contain z-20 shadow-sm" style={{ backgroundImage: "url('/assets/elephant-border-right.jpg')" }} />
+          {/* Top Marigold Garland Border placed cleanly inside the pink watercolor background */}
+          <div className="absolute top-0 inset-x-0 w-full h-8 bg-repeat-x bg-contain z-10 pointer-events-none" style={{ backgroundImage: "url('/assets/kalyana-mandapam/gallery-toranam.png')" }} />
 
           {/* Title Header */}
-          <div className="text-center space-y-1 relative z-10 pt-2 mb-2">
+          <div className="text-center space-y-1 relative z-10 pt-4 mb-8">
             <h2 className={`${greatVibes.className} text-5xl text-[#76181C]`}>The Wedding Journey</h2>
             <p className={`${cormorant.className} text-sm text-[#76181C]/80 italic`}>
               Walk with us, function to function, to the sacred hour.
             </p>
           </div>
 
-          {/* STAGE CONTAINER WITH SVG ASPECT RATIO */}
-          <div className="relative w-full aspect-[400/1333] max-w-md mx-auto">
+          {/* STAGE CONTAINER */}
+          <div className="relative w-full aspect-[400/1400] max-w-md mx-auto">
             
-            {/* FOOTPRINTS LAYER (SLOWER, SMOOTH REVEAL) */}
-            {FOOTPRINT_COORDINATES.map((foot, index) => (
-              <motion.img
-                key={index}
-                initial={{ opacity: 0, scale: 0.3 }}
-                whileInView={{ opacity: 0.8, scale: 1 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ 
-                  duration: 0.7, 
-                  delay: (index % 5) * 0.12,
-                  ease: "easeOut" 
-                }}
-                src={foot.isLeft ? "/assets/footprint-left.png" : "/assets/footprint-right.png"}
-                alt=""
-                className="absolute w-3.5 h-auto pointer-events-none z-0"
-                style={{
-                  left: foot.left,
-                  top: foot.top,
-                  transform: `translate(-50%, -50%) rotate(${foot.rot}deg)`
+            {/* SVG SCROLLING & MOVING DASHES PATH */}
+            <svg className="absolute inset-0 w-full h-full pointer-events-none z-0" viewBox="0 0 400 1400" fill="none">
+              <path
+                d="M 200 20 Q 340 180 200 340 Q 60 500 200 660 Q 340 820 200 980 Q 60 1140 200 1300"
+                stroke="#76181C"
+                strokeWidth="3.5"
+                strokeDasharray="6 14"
+                strokeLinecap="round"
+                opacity="0.25"
+              />
+              <motion.path
+                d="M 200 20 Q 340 180 200 340 Q 60 500 200 660 Q 340 820 200 980 Q 60 1140 200 1300"
+                stroke="#76181C"
+                strokeWidth="4"
+                strokeDasharray="6 14"
+                strokeLinecap="round"
+                style={{ pathLength }}
+                animate={{ strokeDashoffset: [40, 0] }}
+                transition={{
+                  duration: 1.5,
+                  repeat: Infinity,
+                  ease: "linear"
                 }}
               />
-            ))}
+            </svg>
 
             {/* EVENT STOPS */}
-            {INVITATION_DATA.events.map((evt) => {
+            {INVITATION_DATA.events.map((evt, idx) => {
               const isAlignRight = evt.align === 'right';
 
               return (
-                <div 
+                <motion.div 
                   key={evt.id} 
+                  initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                  viewport={{ once: true, margin: "-80px" }}
+                  transition={{ duration: 0.8, ease: "easeOut", delay: 0.15 }}
                   className="absolute w-full z-10 flex items-start"
-                  style={{ top: evt.topPct }}
+                  style={{ top: `${15 + idx * 19}%` }}
                 >
-                  {/* Event Card positioned beside the path */}
-                  <div className={`w-[58%] text-center space-y-0.5 ${isAlignRight ? 'ml-auto pr-2' : 'mr-auto pl-2'}`}>
+                  <div className={`w-[58%] text-center ${isAlignRight ? 'ml-auto pr-3' : 'mr-auto pl-3'}`}>
                     
-                    {/* Floating Medallion Badge */}
-                    <div className="w-10 h-10 mx-auto rounded-full bg-[#fbebb3]/95 border border-amber-400/70 p-1 flex items-center justify-center shadow-md mb-1">
+                    <div className="w-11 h-11 mx-auto rounded-full bg-[#fbebb3] border-2 border-amber-400 p-1.5 flex items-center justify-center shadow-md mb-1 -mt-7">
                       <img src={evt.iconImg} alt={evt.title} className="w-full h-full object-contain drop-shadow-sm" />
                     </div>
 
                     <h3 className={`${marcellus.className} text-sm sm:text-base text-[#76181C] tracking-[0.01em] font-medium`}>{evt.title}</h3>
-                    <p className={`${cormorant.className} text-[0.72rem] text-gray-800 font-semibold`}>{evt.date} · {evt.time}</p>
+                    <p className={`${cormorant.className} text-[0.75rem] text-gray-800 font-semibold`}>{evt.date} · {evt.time}</p>
                     <p className={`${cormorant.className} text-[0.72rem] text-gray-700 font-medium leading-snug px-1`}>{evt.venue}</p>
 
                     {evt.dressCode && (
-                      <p className={`${marcellus.className} text-[0.58rem] text-amber-900 bg-amber-200/80 px-2 py-0.5 rounded-full w-max mx-auto uppercase tracking-[0.1em] mt-1`}>
+                      <p className={`${marcellus.className} text-[0.58rem] text-amber-900 bg-amber-200/80 px-2.5 py-0.5 rounded-full w-max mx-auto uppercase tracking-[0.1em] mt-1`}>
                         Theme: {evt.dressCode}
                       </p>
                     )}
@@ -506,19 +455,19 @@ export default function WeddingInvitation() {
                       href={evt.mapUrl} 
                       target="_blank" 
                       rel="noopener noreferrer" 
-                      className={`${marcellus.className} inline-flex items-center gap-1 mt-1 text-[#76181C] text-[0.58rem] tracking-[0.12em] uppercase font-medium border border-[#76181C] rounded-full px-2.5 py-0.5 hover:bg-[#76181C] hover:text-white transition`}
+                      className={`${marcellus.className} inline-flex items-center gap-1 mt-1 text-[#76181C] text-[0.58rem] tracking-[0.12em] uppercase font-medium border border-[#76181C] rounded-full px-3 py-1 hover:bg-[#76181C] hover:text-white transition shadow-sm`}
                     >
-                      <MapPin className="w-2 h-2" /> View Map
+                      <MapPin className="w-2.5 h-2.5" /> View Map
                     </a>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
 
           </div>
         </section>
 
-        {/* 5. BEFORE THE VOWS (PATTU SILK BACKGROUND & TORANAM & PARASOL) */}
+        {/* 5. BEFORE THE VOWS */}
         <section 
           className="relative py-14 px-6 text-center overflow-hidden shadow-inner"
           style={{ 
@@ -528,10 +477,8 @@ export default function WeddingInvitation() {
             backgroundSize: '300px 300px'
           }}
         >
-          {/* Toranam Garland at the top of the section */}
           <div className="absolute top-0 inset-x-0 w-full h-8 bg-repeat-x bg-contain z-10 pointer-events-none" style={{ backgroundImage: "url('/assets/kalyana-mandapam/gallery-toranam.png')" }} />
 
-          {/* Decorative Ceremonial Umbrella Asset */}
           <motion.img 
             initial={{ y: 20, opacity: 0.8 }}
             whileInView={{ y: 0, opacity: 1 }}
@@ -568,15 +515,12 @@ export default function WeddingInvitation() {
 
         {/* 6. RSVP SECTION */}
         <section 
-          className="relative py-14 px-3 shadow-inner overflow-hidden"
+          className="relative py-14 px-4 shadow-inner overflow-hidden"
           style={{ 
             backgroundColor: '#fbebb3',
             backgroundImage: "url('/assets/muggu-pattern.png')",
-            backgroundRepeat: 'repeat',
-            backgroundSize: '180px 180px'
           }}
         >
-          {/* Elephant Borders */}
           <div className="absolute top-0 left-0 right-0 h-5 bg-repeat-x bg-contain z-20 shadow-sm" style={{ backgroundImage: "url('/assets/elephant-border-top.jpg')" }} />
           <div className="absolute bottom-0 left-0 right-0 h-5 bg-repeat-x bg-contain z-20 shadow-sm" style={{ backgroundImage: "url('/assets/elephant-border-bottom.jpg')" }} />
           <div className="absolute left-0 top-0 bottom-0 w-5 bg-repeat-y bg-contain z-20 shadow-sm" style={{ backgroundImage: "url('/assets/elephant-border-left.jpg')" }} />
@@ -584,68 +528,124 @@ export default function WeddingInvitation() {
 
           <div className="max-w-xs mx-auto text-center space-y-4 relative z-10 pt-2">
             <h2 className={`${marcellus.className} text-2xl text-[#76181C]`}>Bless Us With Your Presence</h2>
-            <p className={`${cormorant.className} text-sm text-gray-600`}>Let us know if you can join us, so we may keep a place for you.</p>
+            <p className={`${cormorant.className} text-sm text-gray-700 italic`}>Please grace us with your response so we may reserve your place at our celebration.</p>
 
             {submitted ? (
-              <div className={`${cormorant.className} p-4 bg-green-50 text-green-800 rounded-xl text-sm`}>
+              <div className={`${cormorant.className} p-4 bg-green-50 text-green-800 rounded-xl text-sm border border-green-200 shadow-sm`}>
                 <CheckCircle className="w-8 h-8 mx-auto text-green-600 mb-1" />
-                Thank you! Your blessings have been received.
+                Your gracious response has been received. We eagerly look forward to celebrating together!
               </div>
             ) : (
               <form onSubmit={handleRsvpSubmit} className="space-y-3 text-left">
-                <label className={`${cormorant.className} flex items-center gap-2 p-3 bg-white rounded-lg border border-amber-200 text-sm cursor-pointer`}>
-                  <input type="radio" name="attending" defaultChecked className="accent-[#76181C]" />
-                  With joy, we will be there
-                </label>
-                <label className={`${cormorant.className} flex items-center gap-2 p-3 bg-white rounded-lg border border-amber-200 text-sm cursor-pointer`}>
-                  <input type="radio" name="attending" className="accent-[#76181C]" />
-                  With regret, we cannot
-                </label>
+                {/* Name Field */}
+                <div>
+                  <label className={`${marcellus.className} block text-[0.68rem] tracking-[0.1em] uppercase text-[#76181C] font-semibold mb-1`}>
+                    Your Esteemed Name
+                  </label>
+                  <input 
+                    type="text" 
+                    required 
+                    placeholder="Enter your full name" 
+                    className={`${cormorant.className} w-full p-2.5 bg-white rounded-lg border border-amber-300 text-sm focus:outline-none focus:ring-1 focus:ring-[#76181C] shadow-inner`}
+                  />
+                </div>
+
+                {/* Attendance Decision */}
+                <div>
+                  <label className={`${marcellus.className} block text-[0.68rem] tracking-[0.1em] uppercase text-[#76181C] font-semibold mb-1`}>
+                    Will You Grace Us With Your Presence?
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <label className={`${cormorant.className} flex items-center justify-center gap-2 p-2.5 bg-white rounded-lg border border-amber-300 text-sm cursor-pointer shadow-sm hover:border-[#76181C] transition`}>
+                      <input 
+                        type="radio" 
+                        name="attending" 
+                        value="yes"
+                        checked={attendingStatus === 'yes'}
+                        onChange={(e) => setAttendingStatus(e.target.value)}
+                        className="accent-[#76181C]" 
+                      />
+                      With joy, I/We will be there
+                    </label>
+                    <label className={`${cormorant.className} flex items-center justify-center gap-2 p-2.5 bg-white rounded-lg border border-amber-300 text-sm cursor-pointer shadow-sm hover:border-[#76181C] transition`}>
+                      <input 
+                        type="radio" 
+                        name="attending" 
+                        value="no"
+                        checked={attendingStatus === 'no'}
+                        onChange={(e) => setAttendingStatus(e.target.value)}
+                        className="accent-[#76181C]" 
+                      />
+                      With regret, I/We cannot
+                    </label>
+                  </div>
+                </div>
+
+                {/* Conditional Guest Count & Event Selection (Only displayed when 'yes' is selected) */}
+                <AnimatePresence>
+                  {attendingStatus === 'yes' && (
+                    <motion.div 
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="space-y-3 pt-1 border-t border-amber-300/50 overflow-hidden"
+                    >
+                      <div>
+                        <label className={`${marcellus.className} block text-[0.68rem] tracking-[0.1em] uppercase text-[#76181C] font-semibold mb-1`}>
+                          Total Guests Attending (Including You)
+                        </label>
+                        <select 
+                          className={`${cormorant.className} w-full p-2.5 bg-white rounded-lg border border-amber-300 text-sm focus:outline-none focus:ring-1 focus:ring-[#76181C] shadow-inner`}
+                        >
+                          <option value="1">Just Me (1 Guest)</option>
+                          <option value="2">2 Guests</option>
+                          <option value="3">3 Guests</option>
+                          <option value="4">4 Guests</option>
+                          <option value="5">5+ Guests</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className={`${marcellus.className} block text-[0.68rem] tracking-[0.1em] uppercase text-[#76181C] font-semibold mb-1.5`}>
+                          Select Ceremonies You Will Honor Us Attending:
+                        </label>
+                        <div className="space-y-1.5 bg-white/60 p-2.5 rounded-lg border border-amber-300/70 shadow-inner">
+                          {INVITATION_DATA.events.map((evt) => (
+                            <label key={evt.id} className={`${cormorant.className} flex items-center gap-2.5 text-sm cursor-pointer text-gray-800 hover:text-[#76181C]`}>
+                              <input type="checkbox" defaultChecked className="accent-[#76181C] w-4 h-4 rounded" />
+                              <span>{evt.title} ({evt.date.split(',')[1]?.trim() || evt.date})</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Personal Message */}
+                <div>
+                  <label className={`${marcellus.className} block text-[0.68rem] tracking-[0.1em] uppercase text-[#76181C] font-semibold mb-1`}>
+                    Blessings &amp; Wishes for the Couple
+                  </label>
+                  <textarea 
+                    rows="2"
+                    placeholder="Leave a heartfelt note or message for the couple..." 
+                    className={`${cormorant.className} w-full p-2.5 bg-white rounded-lg border border-amber-300 text-sm focus:outline-none focus:ring-1 focus:ring-[#76181C] shadow-inner resize-none`}
+                  ></textarea>
+                </div>
+
                 <button 
                   type="submit" 
-                  className={`${marcellus.className} w-full py-2.5 bg-[#671418] text-amber-100 text-[0.72rem] tracking-[0.14em] uppercase font-medium rounded-lg shadow hover:bg-[#671418]`}
+                  className={`${marcellus.className} w-full py-3 bg-[#671418] hover:bg-[#76181C] text-amber-100 text-[0.75rem] tracking-[0.15em] uppercase font-semibold rounded-lg shadow-lg border border-amber-300/60 transition-transform hover:scale-[1.02]`}
                 >
-                  SEND RSVP
+                  SEND YOUR BLESSINGS &amp; RSVP
                 </button>
               </form>
             )}
           </div>
         </section>
 
-        {/* 7. OUR STORY TEMPLE FRAME SECTION (CONTIGUOUS WITH BACKGROUND PATTERN & ZERO PADDING) */}
-        <section 
-          className="relative py-0 px-0 text-center overflow-hidden"
-          style={{ 
-            backgroundColor: '#fbebb3',
-            backgroundImage: "url('/assets/muggu-pattern.png')",
-            backgroundRepeat: 'repeat',
-            backgroundSize: '180px 180px'
-          }}
-        >
-          <div className="relative w-full max-w-md mx-auto aspect-[4/3] flex items-center justify-center m-0 p-0">
-            
-            {/* Embedded Video Container with exact percentage coordinates matching the carved frame opening */}
-            <div className="absolute top-[21%] left-[10.5%] right-[10.5%] bottom-[10.5%] z-0 overflow-hidden bg-black shadow-inner">
-              <iframe 
-                className="w-full h-full object-cover"
-                src="https://www.youtube.com/embed/madronEXfl0?rel=0&modestbranding=1" 
-                title="Our Story" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowFullScreen 
-                loading="lazy"
-              />
-            </div>
-
-            {/* Architectural Temple Frame Overlay */}
-            <img 
-              src="/assets/our-story-frame.jpg" 
-              alt="Our Story Frame" 
-              className="absolute inset-0 w-full h-full object-cover pointer-events-none z-10" 
-            />
-          </div>
-        </section>
-
-        {/* 8. AUTHENTIC FINAL FOOTER SECTION (WITH ENTRY-CARD BACKGROUND & PROPER PADDING/SPACING) */}
+        {/* 8. AUTHENTIC FINAL FOOTER SECTION */}
         <footer 
           className="relative py-20 px-6 text-center overflow-hidden bg-cover bg-center bg-no-repeat flex flex-col items-center justify-between min-h-[580px]"
           style={{ backgroundImage: "url('/entry-card.jpg')" }}
@@ -658,17 +658,8 @@ export default function WeddingInvitation() {
             </div>
 
             <div className="pt-2 text-xs text-[#76181C]/90 space-y-1 font-medium">
-              <p>This invitation was crafted with love for venky couple</p>
+              <p>This invitation was crafted with love for venky couple photos</p>
             </div>
-          </div>
-
-          {/* Traditional Indian Wedding Mural Illustration positioned precisely at the bottom */}
-          <div className="w-full max-w-sm mx-auto relative z-10 mt-auto pt-6">
-            <img 
-              src="/assets/traditional-wedding-art.png" 
-              alt="Traditional Wedding Art" 
-              className="w-full h-auto object-contain mx-auto drop-shadow-sm" 
-            />
           </div>
         </footer>
 
