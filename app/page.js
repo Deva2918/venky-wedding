@@ -191,7 +191,7 @@ export default function WeddingInvitation() {
             className="fixed inset-0 z-50 flex flex-col items-center justify-start p-6 text-center bg-cover bg-center bg-no-repeat bg-[#FDFBF2]"
             style={{ backgroundImage: "url('/entry-card.jpg')" }}
           >
-            <div className="w-full max-w-sm flex flex-col items-center justify-center space-y-2 pt-45 sm:pt-28">
+            <div className="w-full max-w-sm flex flex-col items-center justify-center space-y-2 pt-26 sm:pt-28">
               
               <div className="w-16 h-16 sm:w-20 sm:h-20 mb-1 flex items-center justify-center bg-transparent">
               </div>
