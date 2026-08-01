@@ -648,7 +648,7 @@ export default function WeddingInvitation() {
         {/* 8. AUTHENTIC FINAL FOOTER SECTION */}
         <footer 
           className="relative py-20 px-6 text-center overflow-hidden bg-cover bg-center bg-no-repeat flex flex-col items-center justify-between min-h-[580px]"
-          style={{ backgroundImage: "url('/entry-card.jpg')" }}
+          style={{ backgroundImage: "url('/exit-card.jpg')" }}
         >
           <div className="w-full max-w-xs mx-auto space-y-3 relative z-10 pt-16">
             <div className="space-y-1">
@@ -657,9 +657,6 @@ export default function WeddingInvitation() {
               <p className={`${cormorant.className} text-2xl text-[#76181C] font-bold pt-1`}>శుభమస్తు</p>
             </div>
 
-            <div className="pt-2 text-xs text-[#76181C]/90 space-y-1 font-medium">
-              <p>This invitation was crafted with love for venky couple photos</p>
-            </div>
           </div>
         </footer>
 
