@@ -47,7 +47,7 @@ const INVITATION_DATA = {
       dressCode: "Yellow",
       mapUrl: "https://maps.app.goo.gl/kvhaF1TVbCi7kAnEA?g_st=ic",
       align: "left",
-      topPct: "25%"
+      topPct: "27%"
     },
     {
       id: "mehandi",
@@ -121,15 +121,15 @@ function TimelineEventItem({ evt, idx }) {
   return (
     <motion.div 
       ref={itemRef}
-      style={{ opacity, scale, y, top: evt.topPct }}
-      className={`absolute w-full z-20 flex items-center px-4 ${isAlignRight ? 'flex-row' : 'flex-row-reverse'}`}
+      style={{ opacity, scale, y, top: evt.topPct}}
+      className={`absolute w-full z-20 flex items-center  ${isAlignRight ? 'flex-row' : 'flex-row-reverse'}`}
     >
       {/* LARGER MINIATURE ILLUSTRATION SLOT */}
-      <div className={`w-[48%] flex items-center justify-center ${isAlignRight ? 'pr-2' : 'pl-2'}`}>
+      <div className={`w-[50%] flex items-center justify-center ${isAlignRight ? 'pr-3' : 'pl-3'}`}>
         <img 
           src={`/assets/${eventImage}`} 
           alt={evt.title} 
-          className="w-44 h-44 sm:w-52 sm:h-52 object-contain drop-shadow-xl hover:scale-105 transition-transform duration-500"
+          className="w-50 h-50 sm:w-50 sm:h-50 object-contain drop-shadow-lg hover:scale-105 transition-transform duration-500"
           onError={(e) => {
             e.target.src = `https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=300&q=80`;
           }}
@@ -137,10 +137,10 @@ function TimelineEventItem({ evt, idx }) {
       </div>
 
       {/* EVENT TEXT SLOT */}
-      <div className={`w-[52%] text-center ${isAlignRight ? 'text-left pl-1' : 'text-right pr-1'}`}>
-        <h3 className={`${marcellus.className} text-xs sm:text-sm text-[#76181C] tracking-[0.01em] font-medium`}>{evt.title}</h3>
-        <p className={`${cormorant.className} text-[0.7rem] text-gray-800 font-semibold`}>{evt.date} · {evt.time}</p>
-        <p className={`${cormorant.className} text-[0.65rem] text-gray-700 font-medium leading-snug`}>{evt.venue}</p>
+      <div className={`w-[50%] text-center ${isAlignRight ? 'text-left pl-1' : 'text-right pr-1'}`}>
+        <h2 className={`${marcellus.className} text-[1.2rem] sm:text-sm text-[#76181C] tracking-[0.01em] font-medium`}>{evt.title}</h2>
+        <p className={`${cormorant.className} text-[1rem] text-gray-800 font-bold`}>{evt.date} · {evt.time}</p>
+        <p className={`${cormorant.className} text-[0.85rem] text-gray-700 font-medium leading-snug`}>{evt.venue}</p>
 
         {evt.dressCode && (
           <p className={`${marcellus.className} text-[0.55rem] text-amber-900 bg-amber-200/80 px-2 py-0.5 rounded-full w-max ${isAlignRight ? '' : 'ml-auto'} uppercase tracking-[0.1em] mt-0.5`}>
@@ -445,7 +445,7 @@ export default function WeddingInvitation() {
           </div>
         </section>
 
-        {/* 4. CREATIVE SCROLLING JOURNEY TIMELINE WITH WIDER PATH TO AVOID TEXT OVERLAP */}
+        {/* 4. CREATIVE SCROLLING JOURNEY TIMELINE WITH ALTERNATING FLIPPED BACKGROUND TILES */}
         <section 
           ref={timelineRef}
           className="relative pt-6 px-3 shadow-inner overflow-hidden flex flex-col"
@@ -486,11 +486,11 @@ export default function WeddingInvitation() {
             </p>
           </div>
 
-          <div className="relative w-full aspect-[400/1850] max-w-md mx-auto z-10">
-            {/* SVG Path updated with wider side curves to stay completely clear of center text */}
-            <svg className="absolute inset-0 w-full h-full pointer-events-none z-10" viewBox="0 0 400 1850" fill="none">
+          <div className="relative w-full aspect-[400/1600] max-w-md mx-auto z-10">
+            {/* SVG Path positioned behind text (z-10) */}
+            <svg className="absolute inset-0 w-full h-full pointer-events-none z-10" viewBox="0 0 400 1600" fill="none">
               <path
-                d="M 320 60 Q 20 160 30 310 Q 40 460 370 600 Q 480 660 215 840 Q -45 1020 215 1200 Q 480 1380 30 1560 Q -20 1650 320 1740 Q 360 1780 200 1820"
+                d="M 215 50 Q 80 130 90 265 Q 100 400 300 490 Q 420 540 210 680 Q -10 820 210 960 Q 430 1100 90 1240 Q -30 1350 280 1460 Q 310 1500 200 1540"
                 stroke="#76181C"
                 strokeWidth="3.5"
                 strokeDasharray="6 14"
@@ -498,7 +498,7 @@ export default function WeddingInvitation() {
                 opacity="0.25"
               />
               <motion.path
-                d="M 320 60 Q 20 160 30 310 Q 40 460 370 600 Q 480 660 215 840 Q -45 1020 215 1200 Q 480 1380 30 1560 Q -20 1650 320 1740 Q 360 1780 200 1820"
+                d="M 215 50 Q 80 130 90 265 Q 100 400 300 490 Q 420 540 210 680 Q -10 820 210 960 Q 430 1100 90 1240 Q -30 1350 280 1460 Q 310 1500 200 1540"
                 stroke="#76181C"
                 strokeWidth="4"
                 strokeDasharray="6 14"
@@ -515,7 +515,7 @@ export default function WeddingInvitation() {
           </div>
         </section>
 
-        {/* 5. BEFORE THE VOWS */}
+        {/* 5. BEFORE THE VOWS 
         <section 
           className="relative py-14 text-center overflow-hidden shadow-inner"
           style={{ 
@@ -533,18 +533,18 @@ export default function WeddingInvitation() {
             </p>
           </div>
 
-        </section>
+        </section> */}
 
         {/* 6. RSVP SECTION WITH CORRECT MAPPED GOOGLE FORM ENTRIES */}
         <section 
-          className="relative py-14 px-4 shadow-inner overflow-hidden"
+          className="relative py-14 shadow-inner overflow-hidden"
           style={{ 
             backgroundColor: '#fbebb3',
-            backgroundImage: "url('/assets/muggu.png')",
+            backgroundImage: "url('/assets/rsvp.jpg')",
           }}
         >
           <div className="max-w-xs mx-auto text-center space-y-4 relative z-10 pt-2">
-            <h2 className={`${marcellus.className} text-2xl text-[#76181C]`}>Bless Us With Your Presence</h2>
+            <h2 className={`${greatVibes.className} text-4xl text-[#76181C]`}>Bless Us With Your Presence</h2>
             <p className={`${cormorant.className} text-sm text-gray-700 italic`}>Please grace us with your response so we may reserve your place at our celebration.</p>
 
             {submitted ? (
