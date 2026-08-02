@@ -35,7 +35,6 @@ const INVITATION_DATA = {
       time: "05:00 PM",
       venue: "708 Kenmare Ct, Dardenne Prairie, MO 63368",
       mapUrl: "https://maps.app.goo.gl/kvhaF1TVbCi7kAnEA?g_st=ic",
-      iconImg: "/assets/pooja-plate.png",
       align: "right",
       topPct: "15%"
     },
@@ -47,7 +46,6 @@ const INVITATION_DATA = {
       venue: "708 Kenmare Ct, Dardenne Prairie, MO 63368",
       dressCode: "Yellow",
       mapUrl: "https://maps.app.goo.gl/kvhaF1TVbCi7kAnEA?g_st=ic",
-      iconImg: "/assets/haldi-bowl.png",
       align: "left",
       topPct: "31%"
     },
@@ -58,7 +56,6 @@ const INVITATION_DATA = {
       time: "06:00 PM",
       venue: "708 Kenmare Ct, Dardenne Prairie, MO 63368",
       mapUrl: "https://maps.app.goo.gl/kvhaF1TVbCi7kAnEA?g_st=ic",
-      iconImg: "/assets/haldi-bowl.png",
       align: "right",
       topPct: "47%"
     },
@@ -69,7 +66,6 @@ const INVITATION_DATA = {
       time: "10:31 AM",
       venue: "The Hindu Temple of St Louis",
       mapUrl: "https://maps.app.goo.gl/QZRRP3PrJEx9x5J17?g_st=ipc",
-      iconImg: "/assets/nadaswaram.png",
       align: "left",
       topPct: "63%"
     },
@@ -80,7 +76,6 @@ const INVITATION_DATA = {
       time: "06:30 PM",
       venue: "Persis Banquet Hall",
       mapUrl: "https://maps.app.goo.gl/RvZwvY2tDK6WD7Ad7?g_st=ic",
-      iconImg: "/assets/reception-sofa.png",
       align: "right",
       topPct: "78%"
     },
@@ -91,7 +86,6 @@ const INVITATION_DATA = {
       time: "09:00 AM",
       venue: "708 Kenmare Ct, Dardenne Prairie, MO 63368",
       mapUrl: "https://maps.app.goo.gl/kvhaF1TVbCi7kAnEA?g_st=ic",
-      iconImg: "/assets/pooja-plate.png",
       align: "left",
       topPct: "94%"
     }
@@ -109,6 +103,63 @@ const INVITATION_DATA = {
     "photo-10.jpg"
   ]
 };
+
+function TimelineEventItem({ evt, idx }) {
+  const itemRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: itemRef,
+    offset: ["start end", "center center"]
+  });
+
+  const opacity = useTransform(scrollYProgress, [0, 0.6], [0, 1]);
+  const scale = useTransform(scrollYProgress, [0, 0.6], [0.8, 1]);
+  const y = useTransform(scrollYProgress, [0, 0.6], [40, 0]);
+
+  const isAlignRight = evt.align === 'right';
+  const eventImage = INVITATION_DATA.galleryImages[idx % INVITATION_DATA.galleryImages.length];
+
+  return (
+    <motion.div 
+      ref={itemRef}
+      style={{ opacity, scale, y, top: `${6 + idx * 18}%` }}
+      className={`absolute w-full z-20 flex items-center  ${isAlignRight ? 'flex-row' : 'flex-row-reverse'}`}
+    >
+      {/* LARGER MINIATURE ILLUSTRATION SLOT */}
+      <div className={`w-[50%] flex items-center justify-center ${isAlignRight ? 'pr-3' : 'pl-3'}`}>
+        <img 
+          src={`/assets/${eventImage}`} 
+          alt={evt.title} 
+          className="w-50 h-50 sm:w-50 sm:h-50 object-contain drop-shadow-lg hover:scale-105 transition-transform duration-500"
+          onError={(e) => {
+            e.target.src = `https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=300&q=80`;
+          }}
+        />
+      </div>
+
+      {/* EVENT TEXT SLOT */}
+      <div className={`w-[50%] text-center ${isAlignRight ? 'text-left pl-1' : 'text-right pr-1'}`}>
+        <h3 className={`${marcellus.className} text-xs sm:text-sm text-[#76181C] tracking-[0.01em] font-medium`}>{evt.title}</h3>
+        <p className={`${cormorant.className} text-[0.7rem] text-gray-800 font-semibold`}>{evt.date} · {evt.time}</p>
+        <p className={`${cormorant.className} text-[0.65rem] text-gray-700 font-medium leading-snug`}>{evt.venue}</p>
+
+        {evt.dressCode && (
+          <p className={`${marcellus.className} text-[0.55rem] text-amber-900 bg-amber-200/80 px-2 py-0.5 rounded-full w-max ${isAlignRight ? '' : 'ml-auto'} uppercase tracking-[0.1em] mt-0.5`}>
+            Theme: {evt.dressCode}
+          </p>
+        )}
+
+        <a 
+          href={evt.mapUrl} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className={`${marcellus.className} inline-flex items-center gap-1 mt-1 text-[#76181C] text-[0.55rem] tracking-[0.12em] uppercase font-medium border border-[#76181C] rounded-full px-2.5 py-0.5 hover:bg-[#76181C] hover:text-white transition shadow-sm`}
+        >
+          <MapPin className="w-2.5 h-2.5" /> Map
+        </a>
+      </div>
+    </motion.div>
+  );
+}
 
 export default function WeddingInvitation() {
   const [isOpen, setIsOpen] = useState(false);
@@ -394,16 +445,22 @@ export default function WeddingInvitation() {
           </div>
         </section>
 
-        {/* 4. CREATIVE SCROLLING JOURNEY TIMELINE */}
+        {/* 4. CREATIVE SCROLLING JOURNEY TIMELINE WITH ALTERNATING FLIPPED BACKGROUND TILES */}
         <section 
           ref={timelineRef}
-          className="relative pt-12 pb-20 px-3 shadow-inner overflow-hidden"
+          className="relative pt-6 px-3 shadow-inner overflow-hidden flex flex-col"
           style={{ 
             backgroundColor: '#fbebb3',
-            backgroundImage: "url('/assets/muggu-pattern.png')",
           }}
         >
-          <div className="absolute top-0 inset-x-0 w-full h-8 bg-repeat-x bg-contain z-10 pointer-events-none" style={{ backgroundImage: "url('/assets/kalyana-mandapam/gallery-toranam.png')" }} />
+          {/* Alternating Vertical Strip background tiles to create seamless straight & upside-down pattern matching */}
+          <div className="absolute inset-0 z-0 flex flex-col w-full h-full pointer-events-none">
+            <div className="w-full h-1/3 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/assets/journey-bg.jpg')" }} />
+            <div className="w-full h-1/3 bg-cover bg-center bg-no-repeat scale-y-[-1]" style={{ backgroundImage: "url('/assets/journey-bg.jpg')" }} />
+            <div className="w-full h-1/3 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/assets/journey-bg.jpg')" }} />
+          </div>
+
+          <div className="absolute top-0 inset-x-0 w-full h-8 bg-repeat-x bg-contain z-20 pointer-events-none" style={{ backgroundImage: "url('/assets/kalyana-mandapam/gallery-toranam.png')" }} />
           <motion.img 
             initial={{ y: 20, opacity: 0.8 }}
             whileInView={{ y: 0, opacity: 1 }}
@@ -411,7 +468,7 @@ export default function WeddingInvitation() {
             src="/assets/kalyana-mandapam/gallery-parasol.png" 
             alt="" 
             aria-hidden="true"
-            className="absolute -right-6 top-10 w-28 sm:w-36 h-auto pointer-events-none z-0 opacity-85 rotate-1 drop-shadow-md"
+            className="absolute -right-6 top-10 w-28 sm:w-36 h-auto pointer-events-none z-20 opacity-85 rotate-1 drop-shadow-md"
           />
           <motion.img 
             initial={{ y: 20, opacity: 0.8 }}
@@ -420,19 +477,20 @@ export default function WeddingInvitation() {
             src="/assets/kalyana-mandapam/gallery-parasol.png" 
             alt="" 
             aria-hidden="true"
-            className="absolute -left-6 top-10 w-28 sm:w-36 h-auto pointer-events-none z-0 opacity-85 rotate-70 drop-shadow-md"
+            className="absolute -left-6 top-10 w-28 sm:w-36 h-auto pointer-events-none z-20 opacity-85 rotate-70 drop-shadow-md"
           />
-          <div className="text-center space-y-1 relative z-10 pt-32 mb-8">
+          <div className="text-center space-y-1 relative z-20 pt-32 mb-4">
             <h2 className={`${greatVibes.className} text-5xl text-[#76181C]`}>The Wedding Journey</h2>
             <p className={`${cormorant.className} text-sm text-[#76181C]/80 italic`}>
               Walk with us, function to function, to the sacred hour.
             </p>
           </div>
 
-          <div className="relative w-full aspect-[400/1500] max-w-md mx-auto">
-            <svg className="absolute inset-0 w-full h-full pointer-events-none z-0" viewBox="0 0 400 1500" fill="none">
+          <div className="relative w-full aspect-[400/1600] max-w-md mx-auto z-10">
+            {/* SVG Path positioned behind text (z-10) */}
+            <svg className="absolute inset-0 w-full h-full pointer-events-none z-10" viewBox="0 0 400 1600" fill="none">
               <path
-                d="M 200 20 Q 340 180 200 340 Q 60 500 200 660 Q 340 820 200 980 Q 60 1140 200 1300 Q 340 1400 200 1480"
+                d="M 215 50 Q 80 130 90 265 Q 100 400 300 490 Q 420 540 210 680 Q -10 820 210 960 Q 430 1100 90 1240 Q -30 1350 280 1460 Q 310 1500 200 1540"
                 stroke="#76181C"
                 strokeWidth="3.5"
                 strokeDasharray="6 14"
@@ -440,7 +498,7 @@ export default function WeddingInvitation() {
                 opacity="0.25"
               />
               <motion.path
-                d="M 200 20 Q 340 180 200 340 Q 60 500 200 660 Q 340 820 200 980 Q 60 1140 200 1300 Q 340 1400 200 1480"
+                d="M 215 50 Q 80 130 90 265 Q 100 400 300 490 Q 420 540 210 680 Q -10 820 210 960 Q 430 1100 90 1240 Q -30 1350 280 1460 Q 310 1500 200 1540"
                 stroke="#76181C"
                 strokeWidth="4"
                 strokeDasharray="6 14"
@@ -451,55 +509,17 @@ export default function WeddingInvitation() {
               />
             </svg>
 
-            {INVITATION_DATA.events.map((evt, idx) => {
-              const isAlignRight = evt.align === 'right';
-
-              return (
-                <motion.div 
-                  key={evt.id} 
-                  initial={{ opacity: 0, y: 50, scale: 0.9 }}
-                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                  viewport={{ once: true, margin: "-80px" }}
-                  transition={{ duration: 0.8, ease: "easeOut", delay: 0.15 }}
-                  className="absolute w-full z-10 flex items-start"
-                  style={{ top: `${12 + idx * 16}%` }}
-                >
-                  <div className={`w-[58%] text-center ${isAlignRight ? 'ml-auto pr-3' : 'mr-auto pl-3'}`}>
-                    <div className="w-11 h-11 mx-auto rounded-full bg-[#fbebb3] border-2 border-amber-400 p-1.5 flex items-center justify-center shadow-md mb-1 -mt-7">
-                      <img src={evt.iconImg} alt={evt.title} className="w-full h-full object-contain drop-shadow-sm" />
-                    </div>
-
-                    <h3 className={`${marcellus.className} text-sm sm:text-base text-[#76181C] tracking-[0.01em] font-medium`}>{evt.title}</h3>
-                    <p className={`${cormorant.className} text-[0.75rem] text-gray-800 font-semibold`}>{evt.date} · {evt.time}</p>
-                    <p className={`${cormorant.className} text-[0.72rem] text-gray-700 font-medium leading-snug px-1`}>{evt.venue}</p>
-
-                    {evt.dressCode && (
-                      <p className={`${marcellus.className} text-[0.58rem] text-amber-900 bg-amber-200/80 px-2.5 py-0.5 rounded-full w-max mx-auto uppercase tracking-[0.1em] mt-1`}>
-                        Theme: {evt.dressCode}
-                      </p>
-                    )}
-
-                    <a 
-                      href={evt.mapUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className={`${marcellus.className} inline-flex items-center gap-1 mt-1 text-[#76181C] text-[0.58rem] tracking-[0.12em] uppercase font-medium border border-[#76181C] rounded-full px-3 py-1 hover:bg-[#76181C] hover:text-white transition shadow-sm`}
-                    >
-                      <MapPin className="w-2.5 h-2.5" /> View Map
-                    </a>
-                  </div>
-                </motion.div>
-              );
-            })}
+            {INVITATION_DATA.events.map((evt, idx) => (
+              <TimelineEventItem key={evt.id} evt={evt} idx={idx} />
+            ))}
           </div>
         </section>
 
         {/* 5. BEFORE THE VOWS */}
         <section 
-          className="relative py-14 px-6 text-center overflow-hidden shadow-inner"
+          className="relative py-14 text-center overflow-hidden shadow-inner"
           style={{ 
-            backgroundColor: '#F5E6BE',
-            backgroundImage: "url('/assets/pattu-silk.png')",
+            backgroundImage: "url('/assets/muggu.png')",
             backgroundRepeat: 'repeat',
             backgroundSize: '300px 300px'
           }}
@@ -520,14 +540,9 @@ export default function WeddingInvitation() {
           className="relative py-14 px-4 shadow-inner overflow-hidden"
           style={{ 
             backgroundColor: '#fbebb3',
-            backgroundImage: "url('/assets/muggu-pattern.png')",
+            backgroundImage: "url('/assets/muggu.png')",
           }}
         >
-          <div className="absolute top-0 left-0 right-0 h-5 bg-repeat-x bg-contain z-20 shadow-sm" style={{ backgroundImage: "url('/assets/elephant-border-top.jpg')" }} />
-          <div className="absolute bottom-0 left-0 right-0 h-5 bg-repeat-x bg-contain z-20 shadow-sm" style={{ backgroundImage: "url('/assets/elephant-border-bottom.jpg')" }} />
-          <div className="absolute left-0 top-0 bottom-0 w-5 bg-repeat-y bg-contain z-20 shadow-sm" style={{ backgroundImage: "url('/assets/elephant-border-left.jpg')" }} />
-          <div className="absolute right-0 top-0 bottom-0 w-5 bg-repeat-y bg-contain z-20 shadow-sm" style={{ backgroundImage: "url('/assets/elephant-border-right.jpg')" }} />
-
           <div className="max-w-xs mx-auto text-center space-y-4 relative z-10 pt-2">
             <h2 className={`${marcellus.className} text-2xl text-[#76181C]`}>Bless Us With Your Presence</h2>
             <p className={`${cormorant.className} text-sm text-gray-700 italic`}>Please grace us with your response so we may reserve your place at our celebration.</p>
