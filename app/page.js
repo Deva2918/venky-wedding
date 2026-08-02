@@ -404,8 +404,25 @@ export default function WeddingInvitation() {
           }}
         >
           <div className="absolute top-0 inset-x-0 w-full h-8 bg-repeat-x bg-contain z-10 pointer-events-none" style={{ backgroundImage: "url('/assets/kalyana-mandapam/gallery-toranam.png')" }} />
-
-          <div className="text-center space-y-1 relative z-10 pt-4 mb-8">
+          <motion.img 
+            initial={{ y: 20, opacity: 0.8 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            src="/assets/kalyana-mandapam/gallery-parasol.png" 
+            alt="" 
+            aria-hidden="true"
+            className="absolute -right-6 top-10 w-28 sm:w-36 h-auto pointer-events-none z-0 opacity-85 rotate-1 drop-shadow-md"
+          />
+          <motion.img 
+            initial={{ y: 20, opacity: 0.8 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            src="/assets/kalyana-mandapam/gallery-parasol.png" 
+            alt="" 
+            aria-hidden="true"
+            className="absolute -left-6 top-10 w-28 sm:w-36 h-auto pointer-events-none z-0 opacity-85 rotate-70 drop-shadow-md"
+          />
+          <div className="text-center space-y-1 relative z-10 pt-32 mb-8">
             <h2 className={`${greatVibes.className} text-5xl text-[#76181C]`}>The Wedding Journey</h2>
             <p className={`${cormorant.className} text-sm text-[#76181C]/80 italic`}>
               Walk with us, function to function, to the sacred hour.
@@ -489,16 +506,6 @@ export default function WeddingInvitation() {
         >
           <div className="absolute top-0 inset-x-0 w-full h-8 bg-repeat-x bg-contain z-10 pointer-events-none" style={{ backgroundImage: "url('/assets/kalyana-mandapam/gallery-toranam.png')" }} />
 
-          <motion.img 
-            initial={{ y: 20, opacity: 0.8 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            src="/assets/kalyana-mandapam/gallery-parasol.png" 
-            alt="" 
-            aria-hidden="true"
-            className="absolute -right-6 top-16 w-28 sm:w-36 h-auto pointer-events-none z-0 opacity-85 rotate-12 drop-shadow-md"
-          />
-
           <div className="relative z-10 space-y-1 mb-8 pt-2">
             <h2 className={`${greatVibes.className} text-5xl text-[#76181C]`}>Before the Vows</h2>
             <p className={`${cormorant.className} text-sm text-[#76181C]/80 italic`}>
@@ -506,21 +513,6 @@ export default function WeddingInvitation() {
             </p>
           </div>
 
-          <div className="relative z-10 grid grid-cols-2 gap-3 max-w-sm mx-auto">
-            {INVITATION_DATA.galleryImages.map((imgName, idx) => (
-              <div 
-                key={idx} 
-                className={`rounded-xl overflow-hidden border-2 border-amber-300/60 shadow-md bg-white ${idx === 0 || idx === 9 ? 'col-span-2 h-52' : 'h-40'}`}
-              >
-                <img 
-                  src={`/assets/gallery/${imgName}`} 
-                  alt={`Gallery photo ${idx + 1}`} 
-                  loading="lazy"
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" 
-                />
-              </div>
-            ))}
-          </div>
         </section>
 
         {/* 6. RSVP SECTION WITH CORRECT MAPPED GOOGLE FORM ENTRIES */}
