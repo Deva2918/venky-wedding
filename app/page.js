@@ -219,7 +219,7 @@ export default function WeddingInvitation() {
             className="fixed inset-0 z-50 flex flex-col items-center justify-start p-6 text-center bg-cover bg-center bg-no-repeat bg-[#FDFBF2]"
             style={{ backgroundImage: "url('/entry-card.jpg')" }}
           >
-            <div className="w-full max-w-sm flex flex-col items-center justify-center space-y-2 pt-26 sm:pt-28">
+            <div className="w-full max-w-sm flex flex-col items-center justify-center space-y-2 pt-50 sm:pt-28">
               <p className={`${marcellus.className} tracking-[0.14em] uppercase text-[0.72rem] text-[#76181C] font-medium`}>
                 THE WEDDING OF
               </p>
