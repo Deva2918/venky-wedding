@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
-import { MapPin, CheckCircle, Volume2, VolumeX } from 'lucide-react';
+import { MapPin, CheckCircle, Volume2, VolumeX, Loader2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { Marcellus, Great_Vibes, Cormorant_Garamond } from 'next/font/google';
 
@@ -30,59 +30,70 @@ const INVITATION_DATA = {
   events: [
     {
       id: "pelli-koduku",
-      title: "Pelli Koduku Ceremony",
-      date: "Wednesday, 26th August 2026",
-      time: "08:00 AM",
-      venue: "Sri Lakshmi Castle, Flat No. B5, 2nd Lane, Jayaprakash Nagar, Vijayawada",
-      mapUrl: "https://maps.app.goo.gl/CXu1vRyaRTGwVE3v7",
+      title: "Pelli Kuthuru and Peli Koduku",
+      date: "Thursday, 03rd September 2026",
+      time: "05:00 PM",
+      venue: "708 Kenmare Ct, Dardenne Prairie, MO 63368",
+      mapUrl: "https://maps.app.goo.gl/kvhaF1TVbCi7kAnEA?g_st=ic",
       iconImg: "/assets/pooja-plate.png",
       align: "right",
-      topPct: "20%"
-    },
-    {
-      id: "pelli-kuturu",
-      title: "Pelli Kuturu Ceremony",
-      date: "Wednesday, 26th August 2026",
-      time: "08:00 AM",
-      venue: "Near Home, Seetharampuram",
-      mapUrl: "https://maps.app.goo.gl/o9wXhgkERR4hZ4MXA",
-      iconImg: "/assets/pooja-plate.png",
-      align: "left",
-      topPct: "38%"
+      topPct: "15%"
     },
     {
       id: "haldi",
-      title: "Haldi Ceremony",
-      date: "Thursday, 27th August 2026",
-      time: "09:00 AM",
-      venue: "Near Function Hall, Pasaladeevi",
+      title: "Haldi",
+      date: "Friday, 04th September 2026",
+      time: "10:00 AM",
+      venue: "708 Kenmare Ct, Dardenne Prairie, MO 63368",
       dressCode: "Yellow",
-      mapUrl: "https://maps.app.goo.gl/X5fr5s3EEj6dScjD8",
+      mapUrl: "https://maps.app.goo.gl/kvhaF1TVbCi7kAnEA?g_st=ic",
+      iconImg: "/assets/haldi-bowl.png",
+      align: "left",
+      topPct: "31%"
+    },
+    {
+      id: "mehandi",
+      title: "Mehandi",
+      date: "Friday, 04th September 2026",
+      time: "06:00 PM",
+      venue: "708 Kenmare Ct, Dardenne Prairie, MO 63368",
+      mapUrl: "https://maps.app.goo.gl/kvhaF1TVbCi7kAnEA?g_st=ic",
       iconImg: "/assets/haldi-bowl.png",
       align: "right",
-      topPct: "56%"
+      topPct: "47%"
     },
     {
       id: "wedding",
-      title: "Wedding Ceremony",
+      title: "Wedding Day",
       date: "Saturday, 05th September 2026",
       time: "10:31 AM",
-      venue: "Hindu Temple of St Louis",
-      mapUrl: "https://maps.app.goo.gl/BcE4pcMrCyi1j7i8A",
+      venue: "The Hindu Temple of St Louis",
+      mapUrl: "https://maps.app.goo.gl/QZRRP3PrJEx9x5J17?g_st=ipc",
       iconImg: "/assets/nadaswaram.png",
       align: "left",
-      topPct: "74%"
+      topPct: "63%"
     },
     {
       id: "reception",
       title: "Reception",
-      date: "Saturday, 29th August 2026",
-      time: "07:00 PM",
-      venue: "Anne Vaari Kalyana Mandapam, 100 Feet Rd, Poranki, Vijayawada",
-      mapUrl: "https://maps.app.goo.gl/zmQntu9X6cNrTdmg7",
+      date: "Saturday, 05th September 2026",
+      time: "06:30 PM",
+      venue: "Persis Banquet Hall",
+      mapUrl: "https://maps.app.goo.gl/RvZwvY2tDK6WD7Ad7?g_st=ic",
       iconImg: "/assets/reception-sofa.png",
       align: "right",
-      topPct: "91%"
+      topPct: "78%"
+    },
+    {
+      id: "vratham",
+      title: "Vratham",
+      date: "Sunday, 06th September 2026",
+      time: "09:00 AM",
+      venue: "708 Kenmare Ct, Dardenne Prairie, MO 63368",
+      mapUrl: "https://maps.app.goo.gl/kvhaF1TVbCi7kAnEA?g_st=ic",
+      iconImg: "/assets/pooja-plate.png",
+      align: "left",
+      topPct: "94%"
     }
   ],
   galleryImages: [
@@ -104,15 +115,16 @@ export default function WeddingInvitation() {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef(null);
 
-  // References to forcefully trigger play via JS on iOS Safari after user interaction
   const heroVideoRef = useRef(null);
   const templeVideoRef = useRef(null);
   const exitVideoRef = useRef(null);
+  const iframeRef = useRef(null);
 
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [attendingStatus, setAttendingStatus] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
-  // Scroll ref for timeline path drawing effect
   const timelineRef = useRef(null);
   const { scrollYProgress } = useScroll({
     target: timelineRef,
@@ -155,15 +167,12 @@ export default function WeddingInvitation() {
   const handleOpenInvitation = () => {
     setIsOpen(true);
     
-    // Play background audio
     if (audioRef.current) {
       audioRef.current.play().then(() => {
         setIsPlaying(true);
       }).catch((err) => console.log("Audio play error:", err));
     }
 
-    // Force all background videos to play immediately upon clicking "Open Invitation"
-    // This unlocks Safari's autoplay restriction because it's tied to a direct user tap event.
     [heroVideoRef, templeVideoRef, exitVideoRef].forEach((ref) => {
       if (ref.current) {
         ref.current.play().catch((err) => console.log("Video play error:", err));
@@ -171,12 +180,13 @@ export default function WeddingInvitation() {
     });
   };
 
-  const [submitted, setSubmitted] = useState(false);
-
   const handleRsvpSubmit = (e) => {
-    e.preventDefault();
-    setSubmitted(true);
-    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setSubmitted(true);
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+    }, 1000);
   };
 
   return (
@@ -184,6 +194,9 @@ export default function WeddingInvitation() {
 
       {/* --- BACKGROUND MUSIC --- */}
       <audio ref={audioRef} src="/wedding-music.mp3" loop />
+
+      {/* --- HIDDEN IFRAME FOR GOOGLE FORMS SUBMISSION --- */}
+      <iframe ref={iframeRef} name="hidden_iframe" id="hidden_iframe" style={{ display: 'none' }}></iframe>
 
       {/* --- FLOATING AUDIO CONTROLLER --- */}
       {isOpen && (
@@ -207,10 +220,6 @@ export default function WeddingInvitation() {
             style={{ backgroundImage: "url('/entry-card.jpg')" }}
           >
             <div className="w-full max-w-sm flex flex-col items-center justify-center space-y-2 pt-26 sm:pt-28">
-              
-              <div className="w-16 h-16 sm:w-20 sm:h-20 mb-1 flex items-center justify-center bg-transparent">
-              </div>
-
               <p className={`${marcellus.className} tracking-[0.14em] uppercase text-[0.72rem] text-[#76181C] font-medium`}>
                 THE WEDDING OF
               </p>
@@ -289,7 +298,7 @@ export default function WeddingInvitation() {
           </div>
         </section>
 
-        {/* 2. THE COUPLE SECTION (PERFECTLY CENTERED CIRCULAR FRAMES) */}
+        {/* 2. THE COUPLE SECTION */}
         <section className="relative py-14 px-8 text-center shadow-inner overflow-hidden">
           <video
             ref={templeVideoRef}
@@ -314,13 +323,9 @@ export default function WeddingInvitation() {
           {/* GROOM CARD */}
           <div className="relative z-10 pt-6 pb-4 px-4">
             <div className="relative w-64 h-64 mx-auto flex items-center justify-center">
-              
-              {/* Perfectly Centered Circular Photo Container */}
               <div className="absolute w-[210px] h-[210px] rounded-full overflow-hidden shadow-xl bg-white z-0 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 mt-[-13px] ml-[7px]">
                 <img src={INVITATION_DATA.couple.groom.image} alt={INVITATION_DATA.couple.groom.name} className="w-full h-full object-cover object-top" />
               </div>
-
-              {/* Pink Floral Wreath Overlay */}
               <img 
                 src="/assets/pink-floral-wreath.png" 
                 alt="Pink Floral Wreath" 
@@ -342,13 +347,9 @@ export default function WeddingInvitation() {
           {/* BRIDE CARD */}
           <div className="relative z-10 pt-2 pb-4 px-4">
             <div className="relative w-64 h-64 mx-auto flex items-center justify-center">
-              
-              {/* Perfectly Centered Circular Photo Container */}
               <div className="absolute w-[210px] h-[210px] rounded-full overflow-hidden shadow-xl bg-white z-0 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 mt-[-13px] ml-[7px]">
                 <img src={INVITATION_DATA.couple.bride.image} alt={INVITATION_DATA.couple.bride.name} className="w-full h-full object-cover object-top" />
               </div>
-
-              {/* Pink Floral Wreath Overlay */}
               <img 
                 src="/assets/pink-floral-wreath.png" 
                 alt="Pink Floral Wreath" 
@@ -393,7 +394,7 @@ export default function WeddingInvitation() {
           </div>
         </section>
 
-        {/* 4. CREATIVE SCROLLING JOURNEY TIMELINE WITH INTEGRATED TOP MARIGOLD BORDER */}
+        {/* 4. CREATIVE SCROLLING JOURNEY TIMELINE */}
         <section 
           ref={timelineRef}
           className="relative pt-12 pb-20 px-3 shadow-inner overflow-hidden"
@@ -402,10 +403,8 @@ export default function WeddingInvitation() {
             backgroundImage: "url('/assets/muggu-pattern.png')",
           }}
         >
-          {/* Top Marigold Garland Border placed cleanly inside the pink watercolor background */}
           <div className="absolute top-0 inset-x-0 w-full h-8 bg-repeat-x bg-contain z-10 pointer-events-none" style={{ backgroundImage: "url('/assets/kalyana-mandapam/gallery-toranam.png')" }} />
 
-          {/* Title Header */}
           <div className="text-center space-y-1 relative z-10 pt-4 mb-8">
             <h2 className={`${greatVibes.className} text-5xl text-[#76181C]`}>The Wedding Journey</h2>
             <p className={`${cormorant.className} text-sm text-[#76181C]/80 italic`}>
@@ -413,13 +412,10 @@ export default function WeddingInvitation() {
             </p>
           </div>
 
-          {/* STAGE CONTAINER */}
-          <div className="relative w-full aspect-[400/1400] max-w-md mx-auto">
-            
-            {/* SVG SCROLLING & MOVING DASHES PATH */}
-            <svg className="absolute inset-0 w-full h-full pointer-events-none z-0" viewBox="0 0 400 1400" fill="none">
+          <div className="relative w-full aspect-[400/1500] max-w-md mx-auto">
+            <svg className="absolute inset-0 w-full h-full pointer-events-none z-0" viewBox="0 0 400 1500" fill="none">
               <path
-                d="M 200 20 Q 340 180 200 340 Q 60 500 200 660 Q 340 820 200 980 Q 60 1140 200 1300"
+                d="M 200 20 Q 340 180 200 340 Q 60 500 200 660 Q 340 820 200 980 Q 60 1140 200 1300 Q 340 1400 200 1480"
                 stroke="#76181C"
                 strokeWidth="3.5"
                 strokeDasharray="6 14"
@@ -427,22 +423,17 @@ export default function WeddingInvitation() {
                 opacity="0.25"
               />
               <motion.path
-                d="M 200 20 Q 340 180 200 340 Q 60 500 200 660 Q 340 820 200 980 Q 60 1140 200 1300"
+                d="M 200 20 Q 340 180 200 340 Q 60 500 200 660 Q 340 820 200 980 Q 60 1140 200 1300 Q 340 1400 200 1480"
                 stroke="#76181C"
                 strokeWidth="4"
                 strokeDasharray="6 14"
                 strokeLinecap="round"
                 style={{ pathLength }}
                 animate={{ strokeDashoffset: [40, 0] }}
-                transition={{
-                  duration: 1.5,
-                  repeat: Infinity,
-                  ease: "linear"
-                }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
               />
             </svg>
 
-            {/* EVENT STOPS */}
             {INVITATION_DATA.events.map((evt, idx) => {
               const isAlignRight = evt.align === 'right';
 
@@ -454,10 +445,9 @@ export default function WeddingInvitation() {
                   viewport={{ once: true, margin: "-80px" }}
                   transition={{ duration: 0.8, ease: "easeOut", delay: 0.15 }}
                   className="absolute w-full z-10 flex items-start"
-                  style={{ top: `${15 + idx * 19}%` }}
+                  style={{ top: `${12 + idx * 16}%` }}
                 >
                   <div className={`w-[58%] text-center ${isAlignRight ? 'ml-auto pr-3' : 'mr-auto pl-3'}`}>
-                    
                     <div className="w-11 h-11 mx-auto rounded-full bg-[#fbebb3] border-2 border-amber-400 p-1.5 flex items-center justify-center shadow-md mb-1 -mt-7">
                       <img src={evt.iconImg} alt={evt.title} className="w-full h-full object-contain drop-shadow-sm" />
                     </div>
@@ -484,7 +474,6 @@ export default function WeddingInvitation() {
                 </motion.div>
               );
             })}
-
           </div>
         </section>
 
@@ -534,7 +523,7 @@ export default function WeddingInvitation() {
           </div>
         </section>
 
-        {/* 6. RSVP SECTION */}
+        {/* 6. RSVP SECTION WITH CORRECT MAPPED GOOGLE FORM ENTRIES */}
         <section 
           className="relative py-14 px-4 shadow-inner overflow-hidden"
           style={{ 
@@ -557,7 +546,13 @@ export default function WeddingInvitation() {
                 Your gracious response has been received. We eagerly look forward to celebrating together!
               </div>
             ) : (
-              <form onSubmit={handleRsvpSubmit} className="space-y-3 text-left">
+              <form 
+                action="https://docs.google.com/forms/d/e/1FAIpQLSeSVtc6uAxQaw2MOVCeOrZlA-IxqZWl-5dffp17LSw_AIs1YA/formResponse" 
+                method="POST" 
+                target="hidden_iframe" 
+                onSubmit={handleRsvpSubmit} 
+                className="space-y-3 text-left"
+              >
                 {/* Name Field */}
                 <div>
                   <label className={`${marcellus.className} block text-[0.68rem] tracking-[0.1em] uppercase text-[#76181C] font-semibold mb-1`}>
@@ -565,6 +560,7 @@ export default function WeddingInvitation() {
                   </label>
                   <input 
                     type="text" 
+                    name="entry.1405437147"
                     required 
                     placeholder="Enter your full name" 
                     className={`${cormorant.className} w-full p-2.5 bg-white rounded-lg border border-amber-300 text-sm focus:outline-none focus:ring-1 focus:ring-[#76181C] shadow-inner`}
@@ -580,10 +576,11 @@ export default function WeddingInvitation() {
                     <label className={`${cormorant.className} flex items-center justify-center gap-2 p-2.5 bg-white rounded-lg border border-amber-300 text-sm cursor-pointer shadow-sm hover:border-[#76181C] transition`}>
                       <input 
                         type="radio" 
-                        name="attending" 
-                        value="yes"
+                        name="entry.837843677" 
+                        value="With joy, I/We will be there"
                         checked={attendingStatus === 'yes'}
-                        onChange={(e) => setAttendingStatus(e.target.value)}
+                        onChange={() => setAttendingStatus('yes')}
+                        required
                         className="accent-[#76181C]" 
                       />
                       With joy, I/We will be there
@@ -591,10 +588,11 @@ export default function WeddingInvitation() {
                     <label className={`${cormorant.className} flex items-center justify-center gap-2 p-2.5 bg-white rounded-lg border border-amber-300 text-sm cursor-pointer shadow-sm hover:border-[#76181C] transition`}>
                       <input 
                         type="radio" 
-                        name="attending" 
-                        value="no"
+                        name="entry.837843677" 
+                        value="With regret, I/We cannot"
                         checked={attendingStatus === 'no'}
-                        onChange={(e) => setAttendingStatus(e.target.value)}
+                        onChange={() => setAttendingStatus('no')}
+                        required
                         className="accent-[#76181C]" 
                       />
                       With regret, I/We cannot
@@ -602,7 +600,7 @@ export default function WeddingInvitation() {
                   </div>
                 </div>
 
-                {/* Conditional Guest Count & Event Selection (Only displayed when 'yes' is selected) */}
+                {/* Conditional Guest Count & Ceremony Checkboxes */}
                 <AnimatePresence>
                   {attendingStatus === 'yes' && (
                     <motion.div 
@@ -615,15 +613,13 @@ export default function WeddingInvitation() {
                         <label className={`${marcellus.className} block text-[0.68rem] tracking-[0.1em] uppercase text-[#76181C] font-semibold mb-1`}>
                           Total Guests Attending (Including You)
                         </label>
-                        <select 
+                        <input 
+                          type="text" 
+                          name="entry.1282873364"
+                          defaultValue="1"
+                          placeholder="e.g., 2"
                           className={`${cormorant.className} w-full p-2.5 bg-white rounded-lg border border-amber-300 text-sm focus:outline-none focus:ring-1 focus:ring-[#76181C] shadow-inner`}
-                        >
-                          <option value="1">Just Me (1 Guest)</option>
-                          <option value="2">2 Guests</option>
-                          <option value="3">3 Guests</option>
-                          <option value="4">4 Guests</option>
-                          <option value="5">5+ Guests</option>
-                        </select>
+                        />
                       </div>
 
                       <div>
@@ -631,10 +627,23 @@ export default function WeddingInvitation() {
                           Select Ceremonies You Will Honor Us Attending:
                         </label>
                         <div className="space-y-1.5 bg-white/60 p-2.5 rounded-lg border border-amber-300/70 shadow-inner">
-                          {INVITATION_DATA.events.map((evt) => (
-                            <label key={evt.id} className={`${cormorant.className} flex items-center gap-2.5 text-sm cursor-pointer text-gray-800 hover:text-[#76181C]`}>
-                              <input type="checkbox" defaultChecked className="accent-[#76181C] w-4 h-4 rounded" />
-                              <span>{evt.title} ({evt.date.split(',')[1]?.trim() || evt.date})</span>
+                          {[
+                            "Peli Kuthuru and Peli Koduku",
+                            "Haldi",
+                            "Mehandi",
+                            "Wedding Day",
+                            "Reception",
+                            "Vratham"
+                          ].map((ceremony, idx) => (
+                            <label key={idx} className={`${cormorant.className} flex items-center gap-2.5 text-sm cursor-pointer text-gray-800 hover:text-[#76181C]`}>
+                              <input 
+                                type="checkbox" 
+                                name="entry.1233983433" 
+                                value={ceremony} 
+                                defaultChecked 
+                                className="accent-[#76181C] w-4 h-4 rounded" 
+                              />
+                              <span>{ceremony}</span>
                             </label>
                           ))}
                         </div>
@@ -643,23 +652,33 @@ export default function WeddingInvitation() {
                   )}
                 </AnimatePresence>
 
-                {/* Personal Message */}
+                {/* Message Field */}
                 <div>
                   <label className={`${marcellus.className} block text-[0.68rem] tracking-[0.1em] uppercase text-[#76181C] font-semibold mb-1`}>
                     Blessings & Wishes for the Couple
                   </label>
                   <textarea 
+                    name="entry.1884014554"
                     rows="2"
                     placeholder="Leave a heartfelt note or message for the couple..." 
                     className={`${cormorant.className} w-full p-2.5 bg-white rounded-lg border border-amber-300 text-sm focus:outline-none focus:ring-1 focus:ring-[#76181C] shadow-inner resize-none`}
                   ></textarea>
                 </div>
 
+                <input type="hidden" name="hud" value="true" />
+
                 <button 
                   type="submit" 
-                  className={`${marcellus.className} w-full py-3 bg-[#671418] hover:bg-[#76181C] text-amber-100 text-[0.75rem] tracking-[0.15em] uppercase font-semibold rounded-lg shadow-lg border border-amber-300/60 transition-transform hover:scale-[1.02]`}
+                  disabled={isSubmitting}
+                  className={`${marcellus.className} w-full py-3 bg-[#671418] hover:bg-[#76181C] text-amber-100 text-[0.75rem] tracking-[0.15em] uppercase font-semibold rounded-lg shadow-lg border border-amber-300/60 transition-transform hover:scale-[1.02] flex items-center justify-center gap-2 mt-2`}
                 >
-                  SEND YOUR BLESSINGS & RSVP
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-pulse" /> Submitting...
+                    </>
+                  ) : (
+                    "SEND YOUR BLESSINGS & RSVP"
+                  )}
                 </button>
               </form>
             )}
@@ -688,7 +707,6 @@ export default function WeddingInvitation() {
               <p className={`${greatVibes.className} text-4xl text-[#76181C]`}>and your blessings</p>
               <p className={`${cormorant.className} text-2xl text-[#76181C] font-bold pt-1`}>శుభమస్తు</p>
             </div>
-
           </div>
         </footer>
 
