@@ -204,7 +204,7 @@ export default function WeddingInvitation() {
                 <h1 className={`${greatVibes.className} text-5xl sm:text-6xl text-[#76181C] leading-tight`}>
                   {INVITATION_DATA.couple.bride.shortName}
                 </h1>
-                <p className={`${greatVibes.className} text-2xl text-[#76181C] my-0`}>&amp;</p>
+                <p className={`${greatVibes.className} text-2xl text-[#76181C] my-0`}>&</p>
                 <h1 className={`${greatVibes.className} text-5xl sm:text-6xl text-[#76181C] leading-tight`}>
                   {INVITATION_DATA.couple.groom.shortName}
                 </h1>
@@ -255,7 +255,7 @@ export default function WeddingInvitation() {
               <h1 className={`${greatVibes.className} text-6xl text-[#76181C]`}>
                 {INVITATION_DATA.couple.groom.shortName}
               </h1>
-              <p className={`${greatVibes.className} text-3xl text-[#76181C] my-0`}>&amp;</p>
+              <p className={`${greatVibes.className} text-3xl text-[#76181C] my-0`}>&</p>
               <h1 className={`${greatVibes.className} text-6xl text-[#76181C]`}>
                 {INVITATION_DATA.couple.bride.shortName}
               </h1>
@@ -625,7 +625,7 @@ export default function WeddingInvitation() {
                 {/* Personal Message */}
                 <div>
                   <label className={`${marcellus.className} block text-[0.68rem] tracking-[0.1em] uppercase text-[#76181C] font-semibold mb-1`}>
-                    Blessings &amp; Wishes for the Couple
+                    Blessings & Wishes for the Couple
                   </label>
                   <textarea 
                     rows="2"
@@ -638,7 +638,7 @@ export default function WeddingInvitation() {
                   type="submit" 
                   className={`${marcellus.className} w-full py-3 bg-[#671418] hover:bg-[#76181C] text-amber-100 text-[0.75rem] tracking-[0.15em] uppercase font-semibold rounded-lg shadow-lg border border-amber-300/60 transition-transform hover:scale-[1.02]`}
                 >
-                  SEND YOUR BLESSINGS &amp; RSVP
+                  SEND YOUR BLESSINGS & RSVP
                 </button>
               </form>
             )}
@@ -647,9 +647,17 @@ export default function WeddingInvitation() {
 
         {/* 8. AUTHENTIC FINAL FOOTER SECTION */}
         <footer 
-          className="relative py-20 px-6 text-center overflow-hidden bg-cover bg-center bg-no-repeat flex flex-col items-center justify-between min-h-[580px]"
-          style={{ backgroundImage: "url('/exit-card.jpg')" }}
+          className="relative py-20 px-6 text-center overflow-hidden flex flex-col items-center justify-between min-h-[580px]"
         >
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            className="absolute inset-0 w-full h-full object-cover z-0"
+            src="/assets/exit-card.mp4"
+          />
           <div className="w-full max-w-xs mx-auto space-y-3 relative z-10 pt-16">
             <div className="space-y-1">
               <p className={`${cormorant.className} text-base text-[#76181C] italic font-semibold`}>We await your gracious presence</p>
