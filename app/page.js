@@ -36,7 +36,7 @@ const INVITATION_DATA = {
       venue: "708 Kenmare Ct, Dardenne Prairie, MO 63368",
       mapUrl: "https://maps.app.goo.gl/kvhaF1TVbCi7kAnEA?g_st=ic",
       align: "right",
-      topPct: "15%"
+      topPct: "7%"
     },
     {
       id: "haldi",
@@ -47,7 +47,7 @@ const INVITATION_DATA = {
       dressCode: "Yellow",
       mapUrl: "https://maps.app.goo.gl/kvhaF1TVbCi7kAnEA?g_st=ic",
       align: "left",
-      topPct: "31%"
+      topPct: "25%"
     },
     {
       id: "mehandi",
@@ -57,7 +57,7 @@ const INVITATION_DATA = {
       venue: "708 Kenmare Ct, Dardenne Prairie, MO 63368",
       mapUrl: "https://maps.app.goo.gl/kvhaF1TVbCi7kAnEA?g_st=ic",
       align: "right",
-      topPct: "47%"
+      topPct: "41%"
     },
     {
       id: "wedding",
@@ -67,7 +67,7 @@ const INVITATION_DATA = {
       venue: "The Hindu Temple of St Louis",
       mapUrl: "https://maps.app.goo.gl/QZRRP3PrJEx9x5J17?g_st=ipc",
       align: "left",
-      topPct: "63%"
+      topPct: "60%"
     },
     {
       id: "reception",
@@ -77,7 +77,7 @@ const INVITATION_DATA = {
       venue: "Persis Banquet Hall",
       mapUrl: "https://maps.app.goo.gl/RvZwvY2tDK6WD7Ad7?g_st=ic",
       align: "right",
-      topPct: "78%"
+      topPct: "75%"
     },
     {
       id: "vratham",
@@ -87,7 +87,7 @@ const INVITATION_DATA = {
       venue: "708 Kenmare Ct, Dardenne Prairie, MO 63368",
       mapUrl: "https://maps.app.goo.gl/kvhaF1TVbCi7kAnEA?g_st=ic",
       align: "left",
-      topPct: "94%"
+      topPct: "87%"
     }
   ],
   galleryImages: [
@@ -121,15 +121,15 @@ function TimelineEventItem({ evt, idx }) {
   return (
     <motion.div 
       ref={itemRef}
-      style={{ opacity, scale, y, top: `${6 + idx * 18}%` }}
-      className={`absolute w-full z-20 flex items-center  ${isAlignRight ? 'flex-row' : 'flex-row-reverse'}`}
+      style={{ opacity, scale, y, top: evt.topPct }}
+      className={`absolute w-full z-20 flex items-center px-4 ${isAlignRight ? 'flex-row' : 'flex-row-reverse'}`}
     >
       {/* LARGER MINIATURE ILLUSTRATION SLOT */}
-      <div className={`w-[50%] flex items-center justify-center ${isAlignRight ? 'pr-3' : 'pl-3'}`}>
+      <div className={`w-[48%] flex items-center justify-center ${isAlignRight ? 'pr-2' : 'pl-2'}`}>
         <img 
           src={`/assets/${eventImage}`} 
           alt={evt.title} 
-          className="w-50 h-50 sm:w-50 sm:h-50 object-contain drop-shadow-lg hover:scale-105 transition-transform duration-500"
+          className="w-44 h-44 sm:w-52 sm:h-52 object-contain drop-shadow-xl hover:scale-105 transition-transform duration-500"
           onError={(e) => {
             e.target.src = `https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=300&q=80`;
           }}
@@ -137,7 +137,7 @@ function TimelineEventItem({ evt, idx }) {
       </div>
 
       {/* EVENT TEXT SLOT */}
-      <div className={`w-[50%] text-center ${isAlignRight ? 'text-left pl-1' : 'text-right pr-1'}`}>
+      <div className={`w-[52%] text-center ${isAlignRight ? 'text-left pl-1' : 'text-right pr-1'}`}>
         <h3 className={`${marcellus.className} text-xs sm:text-sm text-[#76181C] tracking-[0.01em] font-medium`}>{evt.title}</h3>
         <p className={`${cormorant.className} text-[0.7rem] text-gray-800 font-semibold`}>{evt.date} · {evt.time}</p>
         <p className={`${cormorant.className} text-[0.65rem] text-gray-700 font-medium leading-snug`}>{evt.venue}</p>
@@ -445,7 +445,7 @@ export default function WeddingInvitation() {
           </div>
         </section>
 
-        {/* 4. CREATIVE SCROLLING JOURNEY TIMELINE WITH ALTERNATING FLIPPED BACKGROUND TILES */}
+        {/* 4. CREATIVE SCROLLING JOURNEY TIMELINE WITH WIDER PATH TO AVOID TEXT OVERLAP */}
         <section 
           ref={timelineRef}
           className="relative pt-6 px-3 shadow-inner overflow-hidden flex flex-col"
@@ -486,11 +486,11 @@ export default function WeddingInvitation() {
             </p>
           </div>
 
-          <div className="relative w-full aspect-[400/1600] max-w-md mx-auto z-10">
-            {/* SVG Path positioned behind text (z-10) */}
-            <svg className="absolute inset-0 w-full h-full pointer-events-none z-10" viewBox="0 0 400 1600" fill="none">
+          <div className="relative w-full aspect-[400/1850] max-w-md mx-auto z-10">
+            {/* SVG Path updated with wider side curves to stay completely clear of center text */}
+            <svg className="absolute inset-0 w-full h-full pointer-events-none z-10" viewBox="0 0 400 1850" fill="none">
               <path
-                d="M 215 50 Q 80 130 90 265 Q 100 400 300 490 Q 420 540 210 680 Q -10 820 210 960 Q 430 1100 90 1240 Q -30 1350 280 1460 Q 310 1500 200 1540"
+                d="M 320 60 Q 20 160 30 310 Q 40 460 370 600 Q 480 660 215 840 Q -45 1020 215 1200 Q 480 1380 30 1560 Q -20 1650 320 1740 Q 360 1780 200 1820"
                 stroke="#76181C"
                 strokeWidth="3.5"
                 strokeDasharray="6 14"
@@ -498,7 +498,7 @@ export default function WeddingInvitation() {
                 opacity="0.25"
               />
               <motion.path
-                d="M 215 50 Q 80 130 90 265 Q 100 400 300 490 Q 420 540 210 680 Q -10 820 210 960 Q 430 1100 90 1240 Q -30 1350 280 1460 Q 310 1500 200 1540"
+                d="M 320 60 Q 20 160 30 310 Q 40 460 370 600 Q 480 660 215 840 Q -45 1020 215 1200 Q 480 1380 30 1560 Q -20 1650 320 1740 Q 360 1780 200 1820"
                 stroke="#76181C"
                 strokeWidth="4"
                 strokeDasharray="6 14"
