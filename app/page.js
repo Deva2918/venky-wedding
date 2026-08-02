@@ -104,6 +104,11 @@ export default function WeddingInvitation() {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef(null);
 
+  // References to forcefully trigger play via JS on iOS Safari after user interaction
+  const heroVideoRef = useRef(null);
+  const templeVideoRef = useRef(null);
+  const exitVideoRef = useRef(null);
+
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [attendingStatus, setAttendingStatus] = useState('');
 
@@ -149,11 +154,21 @@ export default function WeddingInvitation() {
 
   const handleOpenInvitation = () => {
     setIsOpen(true);
+    
+    // Play background audio
     if (audioRef.current) {
       audioRef.current.play().then(() => {
         setIsPlaying(true);
       }).catch((err) => console.log("Audio play error:", err));
     }
+
+    // Force all background videos to play immediately upon clicking "Open Invitation"
+    // This unlocks Safari's autoplay restriction because it's tied to a direct user tap event.
+    [heroVideoRef, templeVideoRef, exitVideoRef].forEach((ref) => {
+      if (ref.current) {
+        ref.current.play().catch((err) => console.log("Video play error:", err));
+      }
+    });
   };
 
   const [submitted, setSubmitted] = useState(false);
@@ -237,12 +252,15 @@ export default function WeddingInvitation() {
         {/* 1. HERO SCREEN WITH BACKGROUND VIDEO */}
         <section className="relative h-screen min-h-[680px] max-h-[850px] flex flex-col items-center justify-start p-6 text-center overflow-hidden">
           <video
+            ref={heroVideoRef}
             autoPlay
             loop
             muted
             playsInline
             preload="auto"
-            className="absolute inset-0 w-full h-full object-cover z-0"
+            webkit-playsinline="true"
+            x-webkit-airplay="allow"
+            className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
             src="/assets/hero-procession-bg.mp4"
           />
 
@@ -274,12 +292,15 @@ export default function WeddingInvitation() {
         {/* 2. THE COUPLE SECTION (PERFECTLY CENTERED CIRCULAR FRAMES) */}
         <section className="relative py-14 px-8 text-center shadow-inner overflow-hidden">
           <video
+            ref={templeVideoRef}
             autoPlay
             loop
             muted
             playsInline
             preload="auto"
-            className="absolute inset-0 w-full h-full object-cover z-0"
+            webkit-playsinline="true"
+            x-webkit-airplay="allow"
+            className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
             src="/assets/temple-scenery.mp4"
           />
 
@@ -650,12 +671,15 @@ export default function WeddingInvitation() {
           className="relative py-20 px-6 text-center overflow-hidden flex flex-col items-center justify-between min-h-[580px]"
         >
           <video
+            ref={exitVideoRef}
             autoPlay
             loop
             muted
             playsInline
             preload="auto"
-            className="absolute inset-0 w-full h-full object-cover z-0"
+            webkit-playsinline="true"
+            x-webkit-airplay="allow"
+            className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
             src="/assets/exit-card.mp4"
           />
           <div className="w-full max-w-xs mx-auto space-y-3 relative z-10 pt-16">
