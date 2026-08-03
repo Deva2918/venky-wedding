@@ -16,13 +16,13 @@ const INVITATION_DATA = {
     groom: {
       name: "Sai Venkateswara Rao Bonde",
       shortName: "Venkat",
-      parents: "Mr. Srinivas Rao & Mrs. Kasthuri",
+      parents: "Mr. Srinivas Rao Bonde & Mrs. Kasthuri Bonde",
       image: "/assets/groom.jpg"
     },
     bride: {
       name: "Vineela Bandi",
       shortName: "Vineela",
-      parents: "Mr. Veerasekhara Rao & Mrs. Ajaya Kumari",
+      parents: "Mr. Veerasekhara Rao Bandi & Mrs. Ajaya Kumari Bandi",
       image: "/assets/bride.jpg"
     }
   },
