@@ -131,7 +131,7 @@ function TimelineEventItem({ evt, idx }) {
     <motion.div 
       ref={itemRef}
       style={{ opacity, scale, y, top: evt.topPct}}
-      className={`absolute w-full z-20 flex items-center  ${isAlignRight ? 'flex-row' : 'flex-row-reverse'}`}
+      className={`absolute w-full z-20 flex items-center ${isAlignRight ? 'flex-row' : 'flex-row-reverse'}`}
     >
       <div className={`w-[50%] flex items-center justify-center ${isAlignRight ? 'pr-3' : 'pl-3'}`}>
         <img 
@@ -176,7 +176,6 @@ export default function WeddingInvitation() {
   const heroVideoRef = useRef(null);
   const templeVideoRef = useRef(null);
   const exitVideoRef = useRef(null);
-  const iframeRef = useRef(null);
   const formRef = useRef(null);
 
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
@@ -244,7 +243,6 @@ export default function WeddingInvitation() {
   const handleCheckboxChange = (ceremony) => {
     setSelectedCeremonies(prev => {
       const updated = { ...prev, [ceremony]: !prev[ceremony] };
-      // Check if at least one is selected to clear error
       if (Object.values(updated).some(val => val)) {
         setCheckboxError(false);
       }
@@ -252,31 +250,52 @@ export default function WeddingInvitation() {
     });
   };
 
-  const handleRsvpSubmit = (e) => {
+  const handleRsvpSubmit = async (e) => {
+    e.preventDefault();
+
     if (attendingStatus === 'yes') {
       const hasSelectedOne = Object.values(selectedCeremonies).some(val => val);
       if (!hasSelectedOne) {
-        e.preventDefault();
         setCheckboxError(true);
         return;
       }
     }
 
     setIsSubmitting(true);
-    // Submit programmatically to Google Forms via hidden iframe target if using standard React submit, 
-    // or let native form submission take place:
-    setTimeout(() => {
+
+    try {
+      const formElement = formRef.current;
+      const formData = new FormData(formElement);
+      
+      const urlEncodedData = new URLSearchParams();
+      for (const [key, value] of formData.entries()) {
+        urlEncodedData.append(key, value);
+      }
+
+      await fetch(formElement.action, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: urlEncodedData.toString(),
+      });
+
       setIsSubmitting(false);
       setSubmitted(true);
       confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-    }, 1000);
+    } catch (error) {
+      console.error("RSVP submission error:", error);
+      setIsSubmitting(false);
+      setSubmitted(true);
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+    }
   };
 
   return (
     <div className={`min-h-screen bg-[#FDFBF2] text-[#3D2E24] ${cormorant.className} selection:bg-amber-100 selection:text-amber-900 relative`}>
 
       <audio ref={audioRef} src="/wedding-music.mp3" loop />
-      <iframe ref={iframeRef} name="hidden_iframe" id="hidden_iframe" style={{ display: 'none' }}></iframe>
 
       {isOpen && (
         <button
@@ -551,8 +570,6 @@ export default function WeddingInvitation() {
               <form 
                 ref={formRef}
                 action="https://docs.google.com/forms/d/e/1FAIpQLSeSVtc6uAxQaw2MOVCeOrZlA-IxqZWl-5dffp17LSw_AIs1YA/formResponse" 
-                method="POST" 
-                target="hidden_iframe" 
                 onSubmit={handleRsvpSubmit} 
                 className="space-y-3 text-left"
               >
@@ -664,8 +681,6 @@ export default function WeddingInvitation() {
                     className={`${cormorant.className} w-full p-2.5 bg-white rounded-lg border border-amber-300 text-sm focus:outline-none focus:ring-1 focus:ring-[#76181C] shadow-inner resize-none`}
                   ></textarea>
                 </div>
-
-                <input type="hidden" name="hud" value="true" />
 
                 <button 
                   type="submit" 
