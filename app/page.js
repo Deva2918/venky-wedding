@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
-import { MapPin, CheckCircle, Volume2, VolumeX, Loader2 } from 'lucide-react';
+import { MapPin, CheckCircle, Volume2, VolumeX, Loader2, AlertCircle } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { Marcellus, Great_Vibes, Cormorant_Garamond } from 'next/font/google';
 
@@ -104,6 +104,15 @@ const INVITATION_DATA = {
   ]
 };
 
+const CEREMONY_OPTIONS = [
+  "Peli Kuthuru and Peli Koduku",
+  "Haldi",
+  "Mehandi",
+  "Wedding Day",
+  "Reception",
+  "Vratham"
+];
+
 function TimelineEventItem({ evt, idx }) {
   const itemRef = useRef(null);
   const { scrollYProgress } = useScroll({
@@ -124,7 +133,6 @@ function TimelineEventItem({ evt, idx }) {
       style={{ opacity, scale, y, top: evt.topPct}}
       className={`absolute w-full z-20 flex items-center  ${isAlignRight ? 'flex-row' : 'flex-row-reverse'}`}
     >
-      {/* LARGER MINIATURE ILLUSTRATION SLOT */}
       <div className={`w-[50%] flex items-center justify-center ${isAlignRight ? 'pr-3' : 'pl-3'}`}>
         <img 
           src={`/assets/${eventImage}`} 
@@ -136,7 +144,6 @@ function TimelineEventItem({ evt, idx }) {
         />
       </div>
 
-      {/* EVENT TEXT SLOT */}
       <div className={`w-[50%] text-center ${isAlignRight ? 'text-left pl-1' : 'text-right pr-1'}`}>
         <h2 className={`${marcellus.className} text-[1.2rem] sm:text-sm text-[#76181C] tracking-[0.01em] font-medium`}>{evt.title}</h2>
         <p className={`${cormorant.className} text-[1rem] text-gray-800 font-bold`}>{evt.date} · {evt.time}</p>
@@ -170,9 +177,12 @@ export default function WeddingInvitation() {
   const templeVideoRef = useRef(null);
   const exitVideoRef = useRef(null);
   const iframeRef = useRef(null);
+  const formRef = useRef(null);
 
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [attendingStatus, setAttendingStatus] = useState('');
+  const [selectedCeremonies, setSelectedCeremonies] = useState({});
+  const [checkboxError, setCheckboxError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -231,8 +241,30 @@ export default function WeddingInvitation() {
     });
   };
 
+  const handleCheckboxChange = (ceremony) => {
+    setSelectedCeremonies(prev => {
+      const updated = { ...prev, [ceremony]: !prev[ceremony] };
+      // Check if at least one is selected to clear error
+      if (Object.values(updated).some(val => val)) {
+        setCheckboxError(false);
+      }
+      return updated;
+    });
+  };
+
   const handleRsvpSubmit = (e) => {
+    if (attendingStatus === 'yes') {
+      const hasSelectedOne = Object.values(selectedCeremonies).some(val => val);
+      if (!hasSelectedOne) {
+        e.preventDefault();
+        setCheckboxError(true);
+        return;
+      }
+    }
+
     setIsSubmitting(true);
+    // Submit programmatically to Google Forms via hidden iframe target if using standard React submit, 
+    // or let native form submission take place:
     setTimeout(() => {
       setIsSubmitting(false);
       setSubmitted(true);
@@ -243,13 +275,9 @@ export default function WeddingInvitation() {
   return (
     <div className={`min-h-screen bg-[#FDFBF2] text-[#3D2E24] ${cormorant.className} selection:bg-amber-100 selection:text-amber-900 relative`}>
 
-      {/* --- BACKGROUND MUSIC --- */}
       <audio ref={audioRef} src="/wedding-music.mp3" loop />
-
-      {/* --- HIDDEN IFRAME FOR GOOGLE FORMS SUBMISSION --- */}
       <iframe ref={iframeRef} name="hidden_iframe" id="hidden_iframe" style={{ display: 'none' }}></iframe>
 
-      {/* --- FLOATING AUDIO CONTROLLER --- */}
       {isOpen && (
         <button
           onClick={toggleAudio}
@@ -260,7 +288,6 @@ export default function WeddingInvitation() {
         </button>
       )}
 
-      {/* --- ENTRY OVERLAY (FIRST SCREEN) --- */}
       <AnimatePresence>
         {!isOpen && (
           <motion.div 
@@ -306,10 +333,8 @@ export default function WeddingInvitation() {
         )}
       </AnimatePresence>
 
-      {/* --- MAIN PAGE CONTENT --- */}
       <main className="max-w-md mx-auto min-h-screen bg-[#FDFBF2] shadow-2xl border-x border-amber-200/50">
 
-        {/* 1. HERO SCREEN WITH BACKGROUND VIDEO */}
         <section className="relative h-screen min-h-[680px] max-h-[850px] flex flex-col items-center justify-start p-6 text-center overflow-hidden">
           <video
             ref={heroVideoRef}
@@ -349,7 +374,6 @@ export default function WeddingInvitation() {
           </div>
         </section>
 
-        {/* 2. THE COUPLE SECTION */}
         <section className="relative py-14 px-8 text-center shadow-inner overflow-hidden">
           <video
             ref={templeVideoRef}
@@ -371,7 +395,6 @@ export default function WeddingInvitation() {
             </p>
           </div>
 
-          {/* GROOM CARD */}
           <div className="relative z-10 pt-6 pb-4 px-4">
             <div className="relative w-64 h-64 mx-auto flex items-center justify-center">
               <div className="absolute w-[210px] h-[210px] rounded-full overflow-hidden shadow-xl bg-white z-0 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 mt-[-13px] ml-[7px]">
@@ -395,7 +418,6 @@ export default function WeddingInvitation() {
             <img src="/assets/gold-divider.png" alt="Divider" className="w-64 max-w-full h-auto opacity-90" />
           </div>
 
-          {/* BRIDE CARD */}
           <div className="relative z-10 pt-2 pb-4 px-4">
             <div className="relative w-64 h-64 mx-auto flex items-center justify-center">
               <div className="absolute w-[210px] h-[210px] rounded-full overflow-hidden shadow-xl bg-white z-0 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 mt-[-13px] ml-[7px]">
@@ -416,7 +438,6 @@ export default function WeddingInvitation() {
           </div>
         </section>
 
-        {/* 3. MUHURTHAM COUNTDOWN */}
         <section 
           className="relative w-full aspect-[2.1/1] bg-cover bg-center bg-no-repeat overflow-hidden shadow-md"
           style={{ backgroundImage: "url('/assets/countdown-wall.jpg')" }}
@@ -445,15 +466,11 @@ export default function WeddingInvitation() {
           </div>
         </section>
 
-        {/* 4. CREATIVE SCROLLING JOURNEY TIMELINE WITH ALTERNATING FLIPPED BACKGROUND TILES */}
         <section 
           ref={timelineRef}
           className="relative pt-6 px-3 shadow-inner overflow-hidden flex flex-col"
-          style={{ 
-            backgroundColor: '#fbebb3',
-          }}
+          style={{ backgroundColor: '#fbebb3' }}
         >
-          {/* Alternating Vertical Strip background tiles to create seamless straight & upside-down pattern matching */}
           <div className="absolute inset-0 z-0 flex flex-col w-full h-full pointer-events-none">
             <div className="w-full h-1/3 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/assets/journey-bg.jpg')" }} />
             <div className="w-full h-1/3 bg-cover bg-center bg-no-repeat scale-y-[-1]" style={{ backgroundImage: "url('/assets/journey-bg.jpg')" }} />
@@ -487,7 +504,6 @@ export default function WeddingInvitation() {
           </div>
 
           <div className="relative w-full aspect-[400/1600] max-w-md mx-auto z-10">
-            {/* SVG Path positioned behind text (z-10) */}
             <svg className="absolute inset-0 w-full h-full pointer-events-none z-10" viewBox="0 0 400 1600" fill="none">
               <path
                 d="M 215 50 Q 80 130 90 265 Q 100 400 300 490 Q 420 540 210 680 Q -10 820 210 960 Q 430 1100 90 1240 Q -30 1350 280 1460 Q 310 1500 200 1540"
@@ -515,27 +531,6 @@ export default function WeddingInvitation() {
           </div>
         </section>
 
-        {/* 5. BEFORE THE VOWS 
-        <section 
-          className="relative py-14 text-center overflow-hidden shadow-inner"
-          style={{ 
-            backgroundImage: "url('/assets/muggu.png')",
-            backgroundRepeat: 'repeat',
-            backgroundSize: '300px 300px'
-          }}
-        >
-          <div className="absolute top-0 inset-x-0 w-full h-8 bg-repeat-x bg-contain z-10 pointer-events-none" style={{ backgroundImage: "url('/assets/kalyana-mandapam/gallery-toranam.png')" }} />
-
-          <div className="relative z-10 space-y-1 mb-8 pt-2">
-            <h2 className={`${greatVibes.className} text-5xl text-[#76181C]`}>Before the Vows</h2>
-            <p className={`${cormorant.className} text-sm text-[#76181C]/80 italic`}>
-              Little moments from the years that brought us here.
-            </p>
-          </div>
-
-        </section> */}
-
-        {/* 6. RSVP SECTION WITH CORRECT MAPPED GOOGLE FORM ENTRIES */}
         <section 
           className="relative py-14 shadow-inner overflow-hidden"
           style={{ 
@@ -554,13 +549,13 @@ export default function WeddingInvitation() {
               </div>
             ) : (
               <form 
+                ref={formRef}
                 action="https://docs.google.com/forms/d/e/1FAIpQLSeSVtc6uAxQaw2MOVCeOrZlA-IxqZWl-5dffp17LSw_AIs1YA/formResponse" 
                 method="POST" 
                 target="hidden_iframe" 
                 onSubmit={handleRsvpSubmit} 
                 className="space-y-3 text-left"
               >
-                {/* Name Field */}
                 <div>
                   <label className={`${marcellus.className} block text-[0.68rem] tracking-[0.1em] uppercase text-[#76181C] font-semibold mb-1`}>
                     Your Esteemed Name
@@ -574,7 +569,6 @@ export default function WeddingInvitation() {
                   />
                 </div>
 
-                {/* Attendance Decision */}
                 <div>
                   <label className={`${marcellus.className} block text-[0.68rem] tracking-[0.1em] uppercase text-[#76181C] font-semibold mb-1`}>
                     Will You Grace Us With Your Presence?
@@ -607,7 +601,6 @@ export default function WeddingInvitation() {
                   </div>
                 </div>
 
-                {/* Conditional Guest Count & Ceremony Checkboxes */}
                 <AnimatePresence>
                   {attendingStatus === 'yes' && (
                     <motion.div 
@@ -630,36 +623,36 @@ export default function WeddingInvitation() {
                       </div>
 
                       <div>
-                        <label className={`${marcellus.className} block text-[0.68rem] tracking-[0.1em] uppercase text-[#76181C] font-semibold mb-1.5`}>
-                          Select Ceremonies You Will Honor Us Attending:
-                        </label>
-                        <div className="space-y-1.5 bg-white/60 p-2.5 rounded-lg border border-amber-300/70 shadow-inner">
-                          {[
-                            "Peli Kuthuru and Peli Koduku",
-                            "Haldi",
-                            "Mehandi",
-                            "Wedding Day",
-                            "Reception",
-                            "Vratham"
-                          ].map((ceremony, idx) => (
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className={`${marcellus.className} block text-[0.68rem] tracking-[0.1em] uppercase text-[#76181C] font-semibold`}>
+                            Select Ceremonies You Will Honor Us Attending:
+                          </label>
+                        </div>
+                        <div className={`space-y-1.5 bg-white/60 p-2.5 rounded-lg border ${checkboxError ? 'border-red-500 bg-red-50/40' : 'border-amber-300/70'} shadow-inner`}>
+                          {CEREMONY_OPTIONS.map((ceremony, idx) => (
                             <label key={idx} className={`${cormorant.className} flex items-center gap-2.5 text-sm cursor-pointer text-gray-800 hover:text-[#76181C]`}>
                               <input 
                                 type="checkbox" 
                                 name="entry.1233983433" 
                                 value={ceremony} 
-                                defaultChecked 
+                                checked={!!selectedCeremonies[ceremony]}
+                                onChange={() => handleCheckboxChange(ceremony)}
                                 className="accent-[#76181C] w-4 h-4 rounded" 
                               />
                               <span>{ceremony}</span>
                             </label>
                           ))}
                         </div>
+                        {checkboxError && (
+                          <p className="flex items-center gap-1 text-red-700 text-xs mt-1 font-medium">
+                            <AlertCircle className="w-3.5 h-3.5" /> Please select at least one ceremony you will attend.
+                          </p>
+                        )}
                       </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
 
-                {/* Message Field */}
                 <div>
                   <label className={`${marcellus.className} block text-[0.68rem] tracking-[0.1em] uppercase text-[#76181C] font-semibold mb-1`}>
                     Blessings & Wishes for the Couple
@@ -692,7 +685,6 @@ export default function WeddingInvitation() {
           </div>
         </section>
 
-        {/* 8. AUTHENTIC FINAL FOOTER SECTION */}
         <footer 
           className="relative py-20 px-6 text-center overflow-hidden flex flex-col items-center justify-between min-h-[580px]"
         >
